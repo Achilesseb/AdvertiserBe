@@ -1,0 +1,35 @@
+{
+    "compilerOptions": {
+        "target": "es2018",
+        "allowJs": false,
+        "skipLibCheck": true,
+        "strict": true,
+        "forceConsistentCasingInFileNames": true,
+        "esModuleInterop": true,
+        "module": "nodenext",
+        "moduleResolution": "node",
+        "strictNullChecks": true,
+        "sourceMap": true,
+        "declaration": true,
+        "outDir": "dist",
+        "removeComments": true,
+        "alwaysStrict": true,
+        "allowUnreachableCode": false,
+        "noImplicitAny": true,
+        "noImplicitThis": true,
+        "noUnusedLocals": true,
+        "noUnusedParameters": true,
+        "noImplicitReturns": true,
+        "noFallthroughCasesInSwitch": true,
+        "importHelpers": true,
+        "isolatedModules": true,
+        "incremental": true
+    },
+    "include": [
+        "**/*.ts"
+    ],
+    "exclude": [
+        "node_modules",
+        "dist"
+    ]
+}

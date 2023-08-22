@@ -1,0 +1,21 @@
+{
+    "verbose": false,
+    "debug": false,
+    "exec": "node --inspect -r ts-node/register ./index.ts",
+    "ignore": [
+        "mochawesome-report",
+        "node_modules",
+        "./test",
+        "**/*.d.ts",
+        "*.test.ts",
+        "*.spec.ts",
+        "fixtures/*",
+        "test/**/*",
+        "docs/*"
+    ],
+    "watch": [
+        "."
+    ],
+    "ext": "ts, gql",
+    "inspect": true
+}
