@@ -3,8 +3,9 @@
         "target": "es2018",
         "allowJs": false,
         "skipLibCheck": true,
-        "strict": true,
+        "strict": false,
         "forceConsistentCasingInFileNames": true,
+        "resolveJsonModule": true,
         "esModuleInterop": true,
         "module": "nodenext",
         "moduleResolution": "node",
@@ -13,9 +14,9 @@
         "declaration": true,
         "outDir": "dist",
         "removeComments": true,
-        "alwaysStrict": true,
+        "alwaysStrict": false,
         "allowUnreachableCode": false,
-        "noImplicitAny": true,
+        "noImplicitAny": false,
         "noImplicitThis": true,
         "noUnusedLocals": true,
         "noUnusedParameters": true,
@@ -26,7 +27,8 @@
         "incremental": true
     },
     "include": [
-        "**/*.ts"
+        "**/*.ts",
+        "**/*.d.ts"
     ],
     "exclude": [
         "node_modules",
