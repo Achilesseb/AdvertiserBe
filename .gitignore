@@ -11,7 +11,7 @@
 # env files
 .*.env
 .env
-
+serviceAccount.json
 # production
 /dist
 /tests-built
@@ -27,3 +27,4 @@
 
 # testing
 /coverage
+
