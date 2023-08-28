@@ -35,11 +35,12 @@ export const adsTypes = `#graphql
     }
     type Query {
         getAllPromotions: GetAllPromotionsReponse,
-        getPromotionById(promotionId: String): PromotionModel! 
+        getPromotionById(promotionId: String!): PromotionModel! 
     }
 
     type Mutation {
         addNewPromotion(input: AddPromotionInput): PromotionModel!
-        editPromotion(input: EditMutationInput): Boolean!
+        editPromotion(input: EditMutationInput): Boolean
+        deletePromotion(promotionId: String!): Boolean
     }
 `;

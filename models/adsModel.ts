@@ -5,11 +5,10 @@ import {
   EditPromotionInput,
   PromotionInput,
 } from '../graphql/resolvers/adsResolver';
+import { db } from '..';
 
 export const getAllPromotions = async () => {
   try {
-    const db = admin.firestore();
-
     const adsSnapshot = await db.collection('ads').get();
 
     const ads: Ads[] = [];
@@ -31,8 +30,6 @@ export const getAllPromotions = async () => {
 
 export const getPromotionById = async (promotionId: string) => {
   try {
-    const db = admin.firestore();
-
     const promotionSnapshot = await db.collection('ads').doc(promotionId).get();
 
     const promotionData = promotionSnapshot.data();
@@ -48,8 +45,6 @@ export const getPromotionById = async (promotionId: string) => {
 
 export const addNewPromotion = async (input: PromotionInput) => {
   try {
-    const db = admin.firestore();
-
     const promotionSnapshot = await (
       await db.collection('ads').add(input)
     ).get();
@@ -67,9 +62,17 @@ export const addNewPromotion = async (input: PromotionInput) => {
 
 export const editPromotion = async (input: EditPromotionInput) => {
   try {
-    const db = admin.firestore();
     const { id } = input;
     await db.collection('ads').doc(id).update(input);
+    return true;
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+export const deletePromotion = async (promotionId: string) => {
+  try {
+    await db.collection('ads').doc(promotionId).delete();
     return true;
   } catch (error) {
     console.log(error);

@@ -42,6 +42,7 @@ export const genereateSignedUrl = async (fileName: string) => {
 
   return url;
 };
+export const db = admin.firestore();
 (async () => {
   app.use(express.json(), express.urlencoded({ extended: true }), cors());
   const httpServer = http.createServer(app);

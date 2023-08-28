@@ -1,5 +1,6 @@
 import {
   addNewPromotion,
+  deletePromotion,
   editPromotion,
   getAllPromotions,
   getPromotionById,
@@ -43,5 +44,9 @@ export const adsResolver = {
       _: undefined,
       { input }: { input: EditPromotionInput },
     ) => editPromotion(input),
+    deletePromotion: async (
+      _: undefined,
+      { promotionId }: { promotionId: string },
+    ) => deletePromotion(promotionId),
   },
 };
