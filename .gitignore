@@ -11,6 +11,7 @@
 # env files
 .*.env
 .env
+.env.local
 serviceAccount.json
 # production
 /dist
