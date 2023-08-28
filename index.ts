@@ -1,31 +1,65 @@
-// import cookieParser from 'cookie-parser';
+import admin, { ServiceAccount } from 'firebase-admin';
 import cors from 'cors';
-// import http from 'http';
-import pkb from 'body-parser';
-import logger from './logger';
+const serviceAccount = require('./serviceAccount.json');
+import { type Request } from 'express';
+
 import app from './app';
+import _ from 'lodash';
+import express from 'express';
+import { Ads } from './models/usersModel';
+import userRouter from './routes/usersRouter';
+import adsRouter from './routes/adsRouter';
+import tabletsRouter from './routes/tabletsRouter';
 
-const { json } = pkb;
+export type PDFRequestCustomType = Request & {
+  user?: admin.auth.DecodedIdToken;
+};
+admin.initializeApp({
+  credential: admin.credential.cert(
+    serviceAccount as unknown as ServiceAccount,
+  ),
+  storageBucket: 'advertiser_ads',
+});
+export const bucket = admin.storage().bucket();
+export const options: {
+  version: 'v4';
+  action: 'read';
+  expires: any;
+} = {
+  version: 'v4', // Use v4 signing
+  action: 'read', // Specify the action (read, write, delete, etc.)
+  expires: Date.now() + 24 * 60 * 60 * 1000, // URL expiration time (in milliseconds)
+};
+export const genereateSignedUrl = async (fileName: string) => {
+  const [url] = await bucket.file(fileName).getSignedUrl(options);
 
+  return url;
+};
 (async () => {
-  // const httpServer = http.createServer(app);
+  app.use(express.json(), express.urlencoded({ extended: true }), cors());
 
-  // await bree.start();
-  const corsDomains = process.env.CORS_DOMAINS?.split(',');
+  // app.use(async (req: PDFRequestCustomType, res, next) => {
+  //   const token = req.headers.authorization;
 
-  app.use(
-    cors({
-      credentials: true,
-      exposedHeaders: ['Set-Cookie', 'connection'],
-      origin: corsDomains,
-    }),
-    json(),
-    // cookieParser(),
-  );
+  //   try {
+  //     const decodeValue = await admin.auth().verifyIdToken(token as string);
+  //     if (decodeValue) {
+  //       req.user = decodeValue;
+  //       return next();
+  //     }
+  //     return res.json({ message: 'Un authorize' });
+  //   } catch (e) {
+  //     return res.json({ message: 'Internal Error', errorTrace: e });
+  //   }
+  // });
+
+  app.use('/api/ads', adsRouter);
+  app.use('/api/users', userRouter);
+  app.use('/api/tablets', tabletsRouter);
 
   const port = 3000;
 
   app.listen(port, () => {
-    logger.info(`Advertiser app listening on port ${port}`);
+    // logger.info(`Advertiser app listening on port ${port}`);
   });
 })();
