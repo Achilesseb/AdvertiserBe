@@ -1,48 +1,44 @@
-import admin, { ServiceAccount } from 'firebase-admin';
-import cors from 'cors';
 import { expressMiddleware } from '@apollo/server/express4';
-const serviceAccount = require('./serviceAccount.json');
 import { type Request } from 'express';
+import cors from 'cors';
 import http from 'http';
 import app from './app';
 
 import _ from 'lodash';
 import express from 'express';
-import { Ads } from './models/usersModel';
-import userRouter from './routes/usersRouter';
-import adsRouter from './routes/adsRouter';
-import tabletsRouter from './routes/tabletsRouter';
-import { login, signup } from './controllers/authorizationController';
-import { ApolloServer } from '@apollo/server';
-import { createExpressContext, startApollo } from './servers/apolloServer';
+
+import { startApollo } from './servers/apolloServer';
 import logger from './logger';
+import supabase from './supabase';
 
 export type PDFRequestCustomType = Request & {
-  user?: admin.auth.DecodedIdToken;
+  user?: any;
 };
 
-admin.initializeApp({
-  credential: admin.credential.cert(
-    serviceAccount as unknown as ServiceAccount,
-  ),
-  storageBucket: 'advertiser_ads',
-});
-export const bucket = admin.storage().bucket();
-export const options: {
-  version: 'v4';
-  action: 'read';
-  expires: any;
-} = {
-  version: 'v4', // Use v4 signing
-  action: 'read', // Specify the action (read, write, delete, etc.)
-  expires: Date.now() + 24 * 60 * 60 * 1000, // URL expiration time (in milliseconds)
-};
-export const genereateSignedUrl = async (fileName: string) => {
-  const [url] = await bucket.file(fileName).getSignedUrl(options);
+// admin.initializeApp({
+//   credential: admin.credential.cert({
+//     projectId: process.env.PROJECT_ID,
+//     clientEmail: process.env.CLIENT_EMAIL,
+//     privateKey: process.env.PRIVATE_KEY,
+//   }),
+//   storageBucket: 'advertiser_ads',
+// });
+// export const bucket = admin.storage().bucket();
+// export const options: {
+//   version: 'v4';
+//   action: 'read';
+//   expires: any;
+// } = {
+//   version: 'v4', // Use v4 signing
+//   action: 'read', // Specify the action (read, write, delete, etc.)
+//   expires: Date.now() + 24 * 60 * 60 * 1000, // URL expiration time (in milliseconds)
+// };
+// export const genereateSignedUrl = async (fileName: string) => {
+//   const [url] = await bucket.file(fileName).getSignedUrl(options);
 
-  return url;
-};
-export const db = admin.firestore();
+//   return url;
+// };
+// export const db = admin.firestore();
 (async () => {
   app.use(express.json(), express.urlencoded({ extended: true }), cors());
   const httpServer = http.createServer(app);
@@ -54,26 +50,29 @@ export const db = admin.firestore();
     }),
   );
 
-  // app.use('/api/login', login);
-  // app.use('/api/signup', signup);
+  app.use(async (req: PDFRequestCustomType, res, next) => {
+    const token = req?.headers?.authorization;
+    console.log(token, req.headers);
 
-  // app.use(async (req: PDFRequestCustomType, res, next) => {
-  //   const token = req?.headers?.authorization;
-  //   console.log(token, req.headers);
-  //   try {
-  //     if (token) {
-  //       const decodeValue = await admin.auth().verifyIdToken(token as string);
-  //       if (decodeValue) {
-  //         req.user = decodeValue;
-  //         return next();
-  //       }
-  //     }
+    try {
+      if (token) {
+        const userResponse = await supabase.auth.getUser(token);
 
-  //     return res.json({ message: 'Un authorize' });
-  //   } catch (e) {
-  //     return res.json({ message: 'Internal Error', errorTrace: e });
-  //   }
-  // });
+        if (userResponse) {
+          req.user = userResponse;
+          return next();
+        }
+
+        // if (userResponse.error && error.message === 'jwt expired') {
+        //   return res.json({ message: 'Token expired' });
+        // }
+      }
+
+      return res.json({ message: 'Unauthorized' });
+    } catch (e) {
+      return res.json({ message: 'Internal Error', errorTrace: e });
+    }
+  });
 
   // app.use('/api/ads', adsRouter);
   // app.use('/api/users', userRouter);

@@ -1,13 +1,12 @@
-import { query } from 'express';
 import {
-  PromotionInput,
-  EditPromotionInput,
-} from '../graphql/resolvers/promotionsResolver';
+  ClientInput,
+  EditClientInput,
+} from '../graphql/resolvers/clientsResolver'; // Update the import path accordingly
 import { queryResultHandler } from '../graphql/utils/errorHandlers';
 import supabase from '../supabase';
 
-export const getAllPromotions = async () => {
-  const dataQuery = await supabase.from('promotions').select('*');
+export const getAllClients = async () => {
+  const dataQuery = await supabase.from('clients').select('*');
 
   const handledResults = queryResultHandler({
     query: dataQuery,
@@ -20,11 +19,11 @@ export const getAllPromotions = async () => {
   };
 };
 
-export const getPromotionById = async (promotionId: string) => {
+export const getClientById = async (clientId: string) => {
   const dataQuery = await supabase
-    .from('promotions')
+    .from('clients')
     .select('*')
-    .eq('id', promotionId)
+    .eq('id', clientId)
     .single();
 
   const handledResults = queryResultHandler({
@@ -35,9 +34,9 @@ export const getPromotionById = async (promotionId: string) => {
   return handledResults;
 };
 
-export const addNewPromotion = async (input: PromotionInput) => {
+export const addNewClient = async (input: ClientInput) => {
   const dataQuery = await supabase
-    .from('promotions')
+    .from('clients')
     .upsert(input)
     .select('*')
     .single();
@@ -50,10 +49,10 @@ export const addNewPromotion = async (input: PromotionInput) => {
   return handledResults;
 };
 
-export const editPromotion = async (input: EditPromotionInput) => {
+export const editClient = async (input: EditClientInput) => {
   const { id, ...editInputs } = input;
   const dataQuery = await supabase
-    .from('promotions')
+    .from('clients')
     .update(editInputs)
     .eq('id', id)
     .select('*')
@@ -67,11 +66,11 @@ export const editPromotion = async (input: EditPromotionInput) => {
   return handledResults;
 };
 
-export const deletePromotion = async (promotionIds: Array<string>) => {
+export const deleteClient = async (clientIds: Array<string>) => {
   const queryData = await supabase
-    .from('promotions')
+    .from('clients')
     .delete({ count: 'exact' })
-    .in('id', promotionIds);
+    .in('id', clientIds);
 
   queryResultHandler({ query: queryData });
   return queryData.count;

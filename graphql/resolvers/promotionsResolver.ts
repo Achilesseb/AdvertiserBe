@@ -16,18 +16,11 @@ export type PromotionInput = {
   client: string;
 };
 
-export type EditPromotionInput = PromotionInput &
-  Exclude<
-    PromotionInput,
-    {
-      fileName: string;
-      url: string;
-    }
-  > & {
-    id: string;
-  };
+export type EditPromotionInput = Omit<PromotionInput, 'fileName' | 'url'> & {
+  id: string;
+};
 
-export const adsResolver = {
+export const promotionsResolver = {
   Query: {
     getAllPromotions: async () => getAllPromotions(),
     getPromotionById: async (
@@ -46,7 +39,7 @@ export const adsResolver = {
     ) => editPromotion(input),
     deletePromotion: async (
       _: undefined,
-      { promotionId }: { promotionId: string },
-    ) => deletePromotion(promotionId),
+      { promotionIds }: { promotionIds: Array<string> },
+    ) => deletePromotion(promotionIds),
   },
 };
