@@ -1,4 +1,4 @@
-export const adsTypes = `#graphql
+export const promotionTypes = `#graphql
   type PromotionModel   {
         id: String,
         title: String,
@@ -25,7 +25,7 @@ export const adsTypes = `#graphql
         client: String!
     }
 
-    input EditMutationInput {
+    input EditPromotionInput {
         id: String!,
         title: String,
         description: String,
@@ -39,8 +39,8 @@ export const adsTypes = `#graphql
     }
 
     type Mutation {
-        addNewPromotion(input: AddPromotionInput): PromotionModel!
-        editPromotion(input: EditMutationInput): Boolean
-        deletePromotion(promotionId: String!): Boolean
+        addNewPromotion(input: AddPromotionInput): PromotionModel
+        editPromotion(input: EditPromotionInput): PromotionModel
+        deletePromotion(promotionIds: [String]!): Int
     }
 `;

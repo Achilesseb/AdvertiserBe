@@ -1,3 +1,6 @@
-import { adsTypes } from './adsTypes';
+import { clientsTypes } from './clientsTypes';
+import { authenticationTypes } from './authenticationTypes';
+import { usersTypes } from './usersTypes';
+import { promotionTypes } from './promotionTypes';
 
-export { adsTypes };
+export { promotionTypes, usersTypes, authenticationTypes, clientsTypes };

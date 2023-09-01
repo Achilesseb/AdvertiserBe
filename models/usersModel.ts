@@ -1,94 +1,99 @@
-import admin from 'firebase-admin';
-import { catchAsync } from '../utils/catchAsync';
-import _ from 'lodash';
+import supabase from '../supabase';
+import { UserInput, EditUserInput } from '../graphql/resolvers/usersResolver';
+import { queryResultHandler } from '../graphql/utils/errorHandlers';
+import crypto from 'crypto';
 
-export type Ads = {
-  id: string;
-  uri: string;
-  poster: string;
-};
+export enum Roles {
+  driver = 'driver',
+  admin = 'admin',
+}
 export type User = {
   id: string;
-  Address: string;
-  Car: string;
-  City: string;
-  Name: string;
-  Phone: number;
-  Team: string;
-  Email: string;
-  createAt: string;
+  address: string;
+  registrationPlate: string;
+  city: string;
+  name: string;
+  phone: string;
+  team: string;
+  email: string;
+  carDetails: string;
+  tabletId: string;
+  tablets: number;
+  role: string;
+  createdAt: string;
 };
 
-export const getUsers = catchAsync(
-  async (
-    req: any,
-    res: {
-      json: (arg0: User[]) => void;
-      status: (arg0: number) => {
-        (): any;
-        new (): any;
-        json: { (arg0: { error: string }): void; new (): any };
-      };
-    },
-  ) => {
-    try {
-      const db = admin.firestore();
+export const getAllUsers = async () => {
+  const dataQuery = await supabase.from('users').select('*');
 
-      const usersSnapshot = await db.collection('users').get();
+  const handledResults = queryResultHandler({
+    query: dataQuery,
+    status: 404,
+  });
 
-      const users: User[] = [];
-      usersSnapshot.forEach(doc => {
-        users.push(doc.data() as User);
-      });
+  return {
+    data: handledResults,
+    count: handledResults.length,
+  };
+};
 
-      res.json(users);
-    } catch (error) {
-      res.status(500).json({ error: 'Failed to retrieve users' });
-    }
-  },
-);
+export const getUserById = async (userId: string) => {
+  const dataQuery = await supabase
+    .from('users')
+    .select('*')
+    .eq('id', userId)
+    .single();
 
-export const addUsers = catchAsync(
-  async (
-    req: { body: any },
-    res: {
-      status: (arg0: number) => {
-        (): any;
-        new (): any;
-        json: {
-          (arg0: { message?: string; error?: string }): void;
-          new (): any;
-        };
-      };
-    },
-  ) => {
-    try {
-      const db = admin.firestore();
+  const handledResults = queryResultHandler({
+    query: dataQuery,
+    status: 404,
+  });
 
-      const userArray = req.body;
+  return handledResults;
+};
 
-      if (!userArray || _.isEmpty(userArray)) return;
-      await Promise.all(
-        userArray.map(async (userData: User) => {
-          const newData = {
-            Address: userData.Address,
-            Car: userData.Car,
-            City: userData.City,
-            Email: userData.Email,
-            Name: userData.Name,
-            Phone: userData.Phone,
-            Team: userData.Team,
-            createAt: new Date(userData.createAt), // Assuming date is passed as string
-            id: userData.id,
-          };
+export const addNewUser = async (input: UserInput) => {
+  const registrationCode = crypto
+    .createHash('shake256', { outputLength: 5 })
+    .update(input?.email)
+    .digest('hex');
 
-          await db.collection('users').add(newData);
-        }),
-      );
+  const dataQuery = await supabase
+    .from('users')
+    .upsert({
+      ...input,
+      registrationCode: registrationCode,
+    })
+    .select('*')
+    .single();
 
-      res.status(201).json({ message: 'User data inserted successfully' });
-    } catch (error) {
-      res.status(500).json({ error: 'Failed to insert user data' });
-    }
-  },
-);
+  return queryResultHandler({
+    query: dataQuery,
+    status: 406,
+  });
+};
+
+export const editUser = async (input: EditUserInput) => {
+  const { id, ...editInputs } = input;
+  const dataQuery = await supabase
+    .from('users')
+    .update(editInputs)
+    .eq('id', id)
+    .select('*')
+    .single();
+
+  const handledResults = queryResultHandler({
+    query: dataQuery,
+    status: 404,
+  });
+
+  return handledResults;
+};
+
+export const deleteUser = async (usersIds: Array<string>) => {
+  const queryData = await supabase.from('users').delete().in('id', usersIds);
+
+  queryResultHandler({ query: queryData });
+
+  return queryData.count;
+};

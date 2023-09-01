@@ -1,4 +1,5 @@
 declare module 'express';
+
 import admin from 'firebase-admin';
 
 declare namespace Express {
