@@ -12,9 +12,23 @@ type ClientModel {
   createdAt: String
 }
 
+type ClientModelView {
+  id: String
+  name: String
+  contactEmail: String
+  phone: String
+  address: String
+  cui: String
+  city: String
+  createdAt: String
+  totalPromotions: Int
+  promotions: String
+  totalDuration: Int
+}
+
 type GetAllClientsResponse {
   count: Int
-  data: [ClientModel]!
+  data: [ClientModelView]!
 }
 
 input AddClientInput {

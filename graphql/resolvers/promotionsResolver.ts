@@ -5,24 +5,27 @@ import {
   getAllPromotions,
   getPromotionById,
 } from '../../models/adsModel';
+import { createPromotionsClientAssociation } from '../utils/associationsHandlers';
 
 export type PromotionInput = {
   title: string;
   description: string;
-  url: string;
   fileName: string;
   category?: string;
   duration?: number;
-  client: string;
+  clientId: string;
 };
 
-export type EditPromotionInput = Omit<PromotionInput, 'fileName' | 'url'> & {
+export type EditPromotionInput = Omit<
+  PromotionInput,
+  'fileName' | 'url' | 'clientId'
+> & {
   id: string;
 };
 
 export const promotionsResolver = {
   Query: {
-    getAllPromotions: async () => getAllPromotions(),
+    getAllPromotions: async (_: unknown, input: any) => getAllPromotions(input),
     getPromotionById: async (
       _: undefined,
       { promotionId }: { promotionId: string },
@@ -32,7 +35,14 @@ export const promotionsResolver = {
     addNewPromotion: async (
       _: undefined,
       { input }: { input: PromotionInput },
-    ) => addNewPromotion(input),
+    ) => {
+      const { clientId } = input;
+      const promotionData = await addNewPromotion(input);
+
+      await createPromotionsClientAssociation(clientId, promotionData.id);
+
+      return promotionData;
+    },
     editPromotion: async (
       _: undefined,
       { input }: { input: EditPromotionInput },

@@ -6,7 +6,7 @@ import { queryResultHandler } from '../graphql/utils/errorHandlers';
 import supabase from '../supabase';
 
 export const getAllClients = async () => {
-  const dataQuery = await supabase.from('clients').select('*');
+  const dataQuery = await supabase.from('clientsandpromotions').select('*');
 
   const handledResults = queryResultHandler({
     query: dataQuery,

@@ -12,3 +12,15 @@ export const createUserRoleAssociation = async (
   });
   queryResultHandler({ query: queryData });
 };
+
+export const createPromotionsClientAssociation = async (
+  clientId: string,
+  promotionId: string,
+) => {
+  if (!clientId || !promotionId) return;
+  const queryData = await supabase.from('clientsPromotions').insert({
+    clientId,
+    promotionId,
+  });
+  queryResultHandler({ query: queryData });
+};
