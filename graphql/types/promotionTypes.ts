@@ -4,10 +4,10 @@ export const promotionTypes = `#graphql
         title: String,
         description: String,
         url: String,
-        client: String,
         duration: Int,
         category: String,
         fileName: String,
+        client: ClientModel
     }
 
     type GetAllPromotionsReponse {
@@ -18,11 +18,10 @@ export const promotionTypes = `#graphql
     input AddPromotionInput {
         title: String!,
         description: String!,
-        url: String!,
         fileName: String!,
         category: String,
         duration: Int,
-        client: String!
+        clientId: String!
     }
 
     input EditPromotionInput {
@@ -31,7 +30,7 @@ export const promotionTypes = `#graphql
         description: String,
         category: String,
         duration: Int,
-        client: String
+        clientId: String
     }
     type Query {
         getAllPromotions: GetAllPromotionsReponse,
