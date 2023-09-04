@@ -17,6 +17,10 @@ export type EditDeviceModelInput = Omit<DeviceModel, 'driver'> & {
   driverId?: string;
 };
 
+export type DeviceModelReturnType = Omit<DeviceModel, 'driver'> & {
+  users: UserModel;
+};
+
 import { queryResultHandler } from '../graphql/utils/errorHandlers';
 import supabase from '../supabase';
 import {
@@ -52,48 +56,69 @@ export const getAllDevices = async ({
 export const getDeviceById = async (deviceId: string) => {
   const dataQuery = await supabase
     .from('devices')
-    .select('*')
+    .select('*, users(*)')
     .eq('id', deviceId)
     .single();
 
-  const handledResults = queryResultHandler({
+  const handledResult = queryResultHandler({
     query: dataQuery,
     status: 404,
-  }) as DeviceModel;
+  }) as DeviceModelReturnType;
 
-  return handledResults;
+  const { users, ...deviceDataResult } = handledResult;
+
+  return {
+    ...deviceDataResult,
+    driver: users,
+  };
 };
 
 export const addNewDevice = async (deviceData: AddDeviceModelInput) => {
   const dataQuery = await supabase
     .from('devices')
     .upsert(deviceData)
-    .select('*')
+    .select('*, users(*)')
     .single();
 
-  return queryResultHandler({
+  const handledResult = queryResultHandler({
     query: dataQuery,
     status: 406,
-  }) as DeviceModel;
+  }) as DeviceModelReturnType;
+
+  const { users, ...deviceDataResult } = handledResult;
+
+  return {
+    ...deviceDataResult,
+    driver: users,
+  };
 };
 
 export const editDevice = async (deviceData: EditDeviceModelInput) => {
   const dataQuery = await supabase
     .from('devices')
-    .upsert(deviceData)
-    .select('*')
+    .update(deviceData)
+    .eq('id', deviceData.id)
+    .select('*, users(*)')
     .single();
 
-  const handledResults = queryResultHandler({
+  const handledResult = queryResultHandler({
     query: dataQuery,
-    status: 404,
-  }) as DeviceModel;
+    status: 409,
+  }) as DeviceModelReturnType;
 
-  return handledResults;
+  const { users, ...deviceDataResult } = handledResult;
+
+  return {
+    ...deviceDataResult,
+    driver: users,
+  };
 };
 
 export const deleteDevice = async (deviceId: string) => {
-  const queryData = await supabase.from('devices').delete().eq('id', deviceId);
+  const queryData = await supabase
+    .from('devices')
+    .delete({ count: 'exact' })
+    .eq('id', deviceId);
 
   queryResultHandler({ query: queryData });
   return queryData.count;

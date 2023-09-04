@@ -3,7 +3,7 @@ export const devicesTypes = `#graphql
 
 type DeviceModel {
   id: String!
-  createAt: String!
+  createdAt: String!
   system: String!
   location: String!
   inUse: Boolean!
@@ -11,29 +11,35 @@ type DeviceModel {
 }
 
 input AddDeviceInput {
-  createAt: String!
   system: String!
   location: String!
   inUse: Boolean!
   driverId: String 
+  identificator: String!
 }
 
 input EditDeviceInput {
-  createAt: String!
-  system: String!
-  location: String!
-  inUse: Boolean!
+  id:String!
+  system: String
+  location: String
+  inUse: Boolean
   driverId: String 
+  identificator: String
 }
 
+type GetAllDevicesResponse {
+  data: [DeviceModel]!
+  count: Int!
+}
 type Query {
-  getAllDevices: [DeviceModel]!
-  getDeviceById(deviceId: String!): Device
+
+  getAllDevices: GetAllDevicesResponse!
+  getDeviceById(deviceId: String!): DeviceModel
 }
 
 type Mutation {
-  addNewDevice(input: AddDeviceInput!): Device
-  editDevice(input: EditDeviceInput!): Device
+  addNewDevice(input: AddDeviceInput!): DeviceModel
+  editDevice(input: EditDeviceInput!): DeviceModel
   deleteDevice(deviceId: String!): Int
 }
 

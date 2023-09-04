@@ -30,7 +30,7 @@ export const createDeviceUserAssociation = async (
   tabletId?: string,
 ) => {
   if (!driverId || !tabletId) return;
-  const queryData = await supabase.from('usersTablets').insert({
+  const queryData = await supabase.from('usersDevices').insert({
     driverId,
     tabletId,
   });

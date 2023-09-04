@@ -1,3 +1,5 @@
+import { devicesResolver } from './devicesResolver';
+
 import { clientsResolver } from './clientsResolver';
 import { authenticationRespolver } from './authenticationResolver';
 import { usersResolver } from './usersResolver';
@@ -8,4 +10,5 @@ export {
   usersResolver,
   authenticationRespolver,
   clientsResolver,
+  devicesResolver,
 };
