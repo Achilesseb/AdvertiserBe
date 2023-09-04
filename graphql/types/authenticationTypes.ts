@@ -2,7 +2,7 @@ export const authenticationTypes = `#graphql
 type User {
   id: ID!
   email: String!
-  # Other user fields...
+
 }
 
 type AuthPayload {

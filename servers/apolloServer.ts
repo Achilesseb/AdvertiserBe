@@ -9,6 +9,7 @@ import * as typeDefs from '../graphql/types/index';
 import * as resolvers from '../graphql/resolvers/index';
 import { Maybe } from 'graphql/jsutils/Maybe';
 import { IResolvers } from '@graphql-tools/utils';
+import supabase from '../supabase';
 
 export const startApollo = async (httpServer: http.Server) => {
   const plugins = [
@@ -60,7 +61,7 @@ export const createExpressContext = async ({
   }
 
   try {
-    // userData = await findUserByToken(token);
+    userData = await supabase.auth.getUser(token);
   } catch (e) {
     return localeData;
   }
