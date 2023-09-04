@@ -1,3 +1,4 @@
+import { GetAllEntitiesArguments } from './../utils/modifiers';
 import { getRole } from '../../models/rolesModel';
 import {
   Roles,
@@ -28,7 +29,8 @@ export type EditUserInput = Omit<UserInput, 'role' | 'email'> & {
 
 export const usersResolver = {
   Query: {
-    getAllUsers: () => getAllUsers(),
+    getAllUsers: (_: unknown, { input }: { input: GetAllEntitiesArguments }) =>
+      getAllUsers(input ?? {}),
     getUserById: (_: undefined, { userId }: { userId: string }) =>
       getUserById(userId),
   },
