@@ -1,19 +1,26 @@
 import { PostgrestFilterBuilder } from '@supabase/postgrest-js';
 import { GenericSchema } from '@supabase/supabase-js/dist/module/lib/types';
 
+export type PaginationArguments = {
+  page?: number;
+  entitiesPerPage?: number;
+};
+
+export type GetAllEntitiesArguments = {
+  pagination: PaginationArguments;
+  filters: Record<string, unknown>;
+};
+
 const addPaginationModifiers = <ResultModel>(
   baseQuery: PostgrestFilterBuilder<
     GenericSchema,
     Record<string, unknown>,
     ResultModel
   >,
-  pagination: {
-    entitiesPerPage: number;
-    page: number;
-  },
+  pagination: PaginationArguments,
 ) => {
-  const entitiesPerPage = pagination.entitiesPerPage ?? 10;
-  const page = pagination.page ?? 1;
+  const entitiesPerPage = pagination?.entitiesPerPage ?? 10;
+  const page = pagination?.page ?? 1;
   const startingIndex = entitiesPerPage * (page - 1);
   const endingIndex = entitiesPerPage * page - 1;
 
@@ -27,10 +34,7 @@ export const addQueryModifiers = async <ResultModel>(
     ResultModel
   >,
   modifiers: {
-    pagination: {
-      entitiesPerPage: number;
-      page: number;
-    };
+    pagination?: PaginationArguments;
   },
 ) => {
   const modifiersMapper: Record<string, typeof addPaginationModifiers> = {

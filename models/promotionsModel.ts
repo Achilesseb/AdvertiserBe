@@ -6,7 +6,11 @@ import { queryResultHandler } from '../graphql/utils/errorHandlers';
 import supabase from '../supabase';
 import _ from 'lodash';
 
-import { addQueryModifiers } from '../graphql/utils/modifiers';
+import {
+  GetAllEntitiesArguments,
+  addQueryModifiers,
+} from '../graphql/utils/modifiers';
+import { ClientModel } from './clientsModel';
 
 type PromotionModel = {
   id: string;
@@ -16,10 +20,10 @@ type PromotionModel = {
   duration: number;
   category: string;
   fileName: string;
-  clients: unknown;
+  clients: ClientModel;
 };
 
-const promotionMapppingFunction = (results: { clients: unknown }) => {
+const promotionMapppingFunction = (results: { clients: ClientModel }) => {
   const { clients: client, ...data } = results;
   return {
     ...data,
@@ -27,7 +31,10 @@ const promotionMapppingFunction = (results: { clients: unknown }) => {
   };
 };
 
-export const getAllPromotions = async (input: unknown) => {
+export const getAllPromotions = async ({
+  pagination,
+  filters,
+}: GetAllEntitiesArguments) => {
   const dataQuery = supabase
     .from('promotions')
     .select<string, PromotionModel>('*, clients(*)', {
@@ -35,10 +42,7 @@ export const getAllPromotions = async (input: unknown) => {
     });
 
   const modifiedQuery = await addQueryModifiers<PromotionModel[]>(dataQuery, {
-    pagination: {
-      page: 1,
-      entitiesPerPage: 2,
-    },
+    pagination,
   });
 
   const handledResults = queryResultHandler({

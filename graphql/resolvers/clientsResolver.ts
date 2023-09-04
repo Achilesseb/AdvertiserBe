@@ -5,6 +5,7 @@ import {
   getAllClients,
   getClientById,
 } from '../../models/clientsModel';
+import { GetAllEntitiesArguments } from '../utils/modifiers';
 
 export type ClientInput = {
   name: string;
@@ -21,7 +22,10 @@ export type EditClientInput = ClientInput & {
 
 export const clientsResolver = {
   Query: {
-    getAllClients: () => getAllClients(),
+    getAllClients: (
+      _: unknown,
+      { input }: { input: GetAllEntitiesArguments },
+    ) => getAllClients(input ?? {}),
     getClientById: (_: undefined, { clientId }: { clientId: string }) =>
       getClientById(clientId),
   },

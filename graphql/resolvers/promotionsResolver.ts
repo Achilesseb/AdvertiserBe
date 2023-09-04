@@ -4,8 +4,9 @@ import {
   editPromotion,
   getAllPromotions,
   getPromotionById,
-} from '../../models/adsModel';
+} from '../../models/promotionsModel';
 import { createPromotionsClientAssociation } from '../utils/associationsHandlers';
+import { GetAllEntitiesArguments } from '../utils/modifiers';
 
 export type PromotionInput = {
   title: string;
@@ -25,7 +26,10 @@ export type EditPromotionInput = Omit<
 
 export const promotionsResolver = {
   Query: {
-    getAllPromotions: (_: unknown, input: any) => getAllPromotions(input),
+    getAllPromotions: (
+      _: unknown,
+      { input }: { input: GetAllEntitiesArguments },
+    ) => getAllPromotions(input ?? {}),
     getPromotionById: (
       _: undefined,
       { promotionId }: { promotionId: string },
