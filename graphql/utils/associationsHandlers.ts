@@ -24,3 +24,15 @@ export const createPromotionsClientAssociation = async (
   });
   queryResultHandler({ query: queryData });
 };
+
+export const createDeviceUserAssociation = async (
+  driverId?: string,
+  tabletId?: string,
+) => {
+  if (!driverId || !tabletId) return;
+  const queryData = await supabase.from('usersTablets').insert({
+    driverId,
+    tabletId,
+  });
+  queryResultHandler({ query: queryData });
+};

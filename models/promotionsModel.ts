@@ -1,7 +1,3 @@
-import {
-  PromotionInput,
-  EditPromotionInput,
-} from '../graphql/resolvers/promotionsResolver';
 import { queryResultHandler } from '../graphql/utils/errorHandlers';
 import supabase from '../supabase';
 import _ from 'lodash';
@@ -11,6 +7,22 @@ import {
   addQueryModifiers,
 } from '../graphql/utils/modifiers';
 import { ClientModel } from './clientsModel';
+
+export type PromotionInput = {
+  title: string;
+  description: string;
+  fileName: string;
+  category?: string;
+  duration?: number;
+  clientId: string;
+};
+
+export type EditPromotionInput = Omit<
+  PromotionInput,
+  'fileName' | 'url' | 'clientId'
+> & {
+  id: string;
+};
 
 type PromotionModel = {
   id: string;

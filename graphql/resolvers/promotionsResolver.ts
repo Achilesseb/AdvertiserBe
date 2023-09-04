@@ -1,4 +1,6 @@
 import {
+  EditPromotionInput,
+  PromotionInput,
   addNewPromotion,
   deletePromotion,
   editPromotion,
@@ -7,22 +9,6 @@ import {
 } from '../../models/promotionsModel';
 import { createPromotionsClientAssociation } from '../utils/associationsHandlers';
 import { GetAllEntitiesArguments } from '../utils/modifiers';
-
-export type PromotionInput = {
-  title: string;
-  description: string;
-  fileName: string;
-  category?: string;
-  duration?: number;
-  clientId: string;
-};
-
-export type EditPromotionInput = Omit<
-  PromotionInput,
-  'fileName' | 'url' | 'clientId'
-> & {
-  id: string;
-};
 
 export const promotionsResolver = {
   Query: {
