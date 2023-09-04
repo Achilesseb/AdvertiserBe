@@ -37,21 +37,36 @@ export type DataBaseResultHandle<T> = {
   messageOverride?: string;
 };
 
+export const generateQueryResultError = ({
+  messageOverride,
+  error,
+  statusOverride = 500,
+}: {
+  messageOverride?: string;
+  error: PostgrestError;
+  statusOverride?: number;
+}) =>
+  new GraphQLError(messageOverride ?? error?.message ?? '', {
+    extensions: {
+      code: undefined,
+      http: {
+        status: statusOverride,
+      },
+    },
+  });
+
 export const queryResultHandler = <T>({
   query,
   status = 500,
   messageOverride,
 }: DataBaseResultHandle<T>) => {
   const { error, data } = query;
-  if (error) {
-    throw new GraphQLError(messageOverride ?? error?.message ?? '', {
-      extensions: {
-        code: undefined,
-        http: {
-          status: status,
-        },
-      },
+  if (error)
+    generateQueryResultError({
+      messageOverride,
+      error,
+      statusOverride: status,
     });
-  }
+
   return data;
 };

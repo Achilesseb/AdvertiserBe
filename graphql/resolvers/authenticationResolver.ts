@@ -1,4 +1,10 @@
+import { PostgrestError, UserMetadata } from '@supabase/supabase-js';
+import {
+  ERROR_LOGIN_FAILED,
+  ERROR_SIGNUP_FAILED,
+} from '../../constants/queryErrorMessages';
 import supabase from '../../supabase';
+import { generateQueryResultError } from '../utils/errorHandlers';
 
 export const authenticationRespolver = {
   Mutation: {
@@ -7,16 +13,20 @@ export const authenticationRespolver = {
       { email, password }: { email: string; password: string },
     ) => {
       try {
-        const response: any = await supabase.auth.signInWithPassword({
+        const response = await supabase.auth.signInWithPassword({
           email,
           password,
         });
         if (response.error) {
-          throw new Error('Invalid credentials');
+          return generateQueryResultError({
+            messageOverride: ERROR_LOGIN_FAILED,
+            error: response.error as unknown as PostgrestError,
+            statusOverride: 401,
+          });
         }
         const user = response.data.user;
         const token = response.data.session?.access_token;
-        console.log(response.data);
+
         return {
           user: {
             id: user.id,
@@ -25,7 +35,11 @@ export const authenticationRespolver = {
           token,
         };
       } catch (error) {
-        throw new Error('Login failed');
+        return generateQueryResultError({
+          messageOverride: ERROR_LOGIN_FAILED,
+          error: error as unknown as PostgrestError,
+          statusOverride: 401,
+        });
       }
     },
 
@@ -34,23 +48,30 @@ export const authenticationRespolver = {
       { email, password }: { email: string; password: string },
     ) => {
       try {
-        const { user, error }: any = await supabase.auth.signUp({
+        const response = await supabase.auth.signUp({
           email,
           password,
         });
-        if (error) {
-          throw new Error('Sign-up failed');
+        if (response.error) {
+          return generateQueryResultError({
+            messageOverride: ERROR_SIGNUP_FAILED,
+            error: response.error as unknown as PostgrestError,
+            statusOverride: 409,
+          });
         }
-
+        const { user }: UserMetadata = response;
         return {
           user: {
             id: user.id,
             email: user.email,
-            // Other user fields...
           },
         };
       } catch (error) {
-        throw new Error('Sign-up failed');
+        return generateQueryResultError({
+          messageOverride: ERROR_SIGNUP_FAILED,
+          error: error as unknown as PostgrestError,
+          statusOverride: 409,
+        });
       }
     },
   },
