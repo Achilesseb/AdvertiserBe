@@ -1,21 +1,46 @@
 import {
+  GetAllEntitiesArguments,
+  PaginationArguments,
+  addQueryModifiers,
+} from './../graphql/utils/modifiers';
+import {
   ClientInput,
   EditClientInput,
 } from '../graphql/resolvers/clientsResolver'; // Update the import path accordingly
 import { queryResultHandler } from '../graphql/utils/errorHandlers';
 import supabase from '../supabase';
 
-export const getAllClients = async () => {
-  const dataQuery = await supabase.from('clientsandpromotions').select('*');
+export type ClientModel = {
+  id: string;
+  name: string;
+  contactEmail: string;
+  phone: string;
+  address: string;
+  cui: string;
+  city: string;
+  createdAt: string;
+};
+
+export const getAllClients = async ({
+  pagination,
+  filters,
+}: GetAllEntitiesArguments) => {
+  const dataQuery = supabase
+    .from('clientsandpromotions')
+    .select('*', { count: 'exact' });
+
+  const modifiedQuery = await addQueryModifiers<ClientModel[]>(dataQuery, {
+    pagination,
+  });
 
   const handledResults = queryResultHandler({
-    query: dataQuery,
+    query: modifiedQuery,
     status: 404,
-  });
+  }) as ClientModel[];
 
   return {
     data: handledResults,
-    count: handledResults.length,
+    count: modifiedQuery.count,
   };
 };
 
