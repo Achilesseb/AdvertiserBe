@@ -2,12 +2,16 @@ import supabase from '../supabase';
 import { UserInput, EditUserInput } from '../graphql/resolvers/usersResolver';
 import { queryResultHandler } from '../graphql/utils/errorHandlers';
 import crypto from 'crypto';
+import {
+  GetAllEntitiesArguments,
+  addQueryModifiers,
+} from '../graphql/utils/modifiers';
 
 export enum Roles {
   driver = 'driver',
   admin = 'admin',
 }
-export type User = {
+export type UserModel = {
   id: string;
   address: string;
   registrationPlate: string;
@@ -23,17 +27,24 @@ export type User = {
   createdAt: string;
 };
 
-export const getAllUsers = async () => {
-  const dataQuery = await supabase.from('users').select('*');
+export const getAllUsers = async ({
+  pagination,
+  filters,
+}: GetAllEntitiesArguments) => {
+  const dataQuery = supabase.from('users').select('*', { count: 'exact' });
+
+  const modifiedQuery = await addQueryModifiers<UserModel[]>(dataQuery, {
+    pagination,
+  });
 
   const handledResults = queryResultHandler({
-    query: dataQuery,
+    query: modifiedQuery,
     status: 404,
-  });
+  }) as UserModel[];
 
   return {
     data: handledResults,
-    count: handledResults.length,
+    count: modifiedQuery.count,
   };
 };
 
