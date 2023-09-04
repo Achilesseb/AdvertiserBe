@@ -62,7 +62,7 @@ export const queryResultHandler = <T>({
 }: DataBaseResultHandle<T>) => {
   const { error, data } = query;
   if (error)
-    generateQueryResultError({
+    throw generateQueryResultError({
       messageOverride,
       error,
       statusOverride: status,
