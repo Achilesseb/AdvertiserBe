@@ -20,6 +20,12 @@ export type EditDeviceModelInput = Omit<DeviceModel, 'driver'> & {
 export type DeviceModelReturnType = Omit<DeviceModel, 'driver'> & {
   users: UserModel;
 };
+export type AddDeviceActivityInput = {
+  deviceId: string;
+  latitude: number;
+  longitude: number;
+  broadcastingDay: string;
+};
 
 import { queryResultHandler } from '../graphql/utils/errorHandlers';
 import supabase from '../supabase';
@@ -27,6 +33,19 @@ import {
   GetAllEntitiesArguments,
   addQueryModifiers,
 } from '../graphql/utils/modifiers';
+import dayjs from 'dayjs';
+import utc from 'dayjs/plugin/utc';
+import tz from 'dayjs/plugin/timezone';
+
+dayjs.extend(utc);
+dayjs.extend(tz);
+const devicesMappingFunctions = (result: DeviceModelReturnType) => {
+  const { users, ...deviceDataResult } = result;
+  return {
+    ...deviceDataResult,
+    driver: users,
+  };
+};
 
 export const getAllDevices = async ({
   pagination,
@@ -34,21 +53,24 @@ export const getAllDevices = async ({
 }: GetAllEntitiesArguments) => {
   const dataQuery = supabase
     .from('devices')
-    .select<string, DeviceModel>('*, users(*)', {
+    .select<string, DeviceModelReturnType>('*, users(*)', {
       count: 'exact',
     });
 
-  const modifiedQuery = await addQueryModifiers<DeviceModel[]>(dataQuery, {
-    pagination,
-  });
+  const modifiedQuery = await addQueryModifiers<DeviceModelReturnType[]>(
+    dataQuery,
+    {
+      pagination,
+    },
+  );
 
   const handledResults = queryResultHandler({
     query: modifiedQuery,
     status: 404,
-  }) as DeviceModel[];
+  }) as DeviceModelReturnType[];
 
   return {
-    data: handledResults,
+    data: handledResults.map(devicesMappingFunctions),
     count: modifiedQuery.count,
   };
 };
@@ -65,12 +87,7 @@ export const getDeviceById = async (deviceId: string) => {
     status: 404,
   }) as DeviceModelReturnType;
 
-  const { users, ...deviceDataResult } = handledResult;
-
-  return {
-    ...deviceDataResult,
-    driver: users,
-  };
+  return devicesMappingFunctions(handledResult);
 };
 
 export const addNewDevice = async (deviceData: AddDeviceModelInput) => {
@@ -85,12 +102,7 @@ export const addNewDevice = async (deviceData: AddDeviceModelInput) => {
     status: 406,
   }) as DeviceModelReturnType;
 
-  const { users, ...deviceDataResult } = handledResult;
-
-  return {
-    ...deviceDataResult,
-    driver: users,
-  };
+  return devicesMappingFunctions(handledResult);
 };
 
 export const editDevice = async (deviceData: EditDeviceModelInput) => {
@@ -106,12 +118,7 @@ export const editDevice = async (deviceData: EditDeviceModelInput) => {
     status: 409,
   }) as DeviceModelReturnType;
 
-  const { users, ...deviceDataResult } = handledResult;
-
-  return {
-    ...deviceDataResult,
-    driver: users,
-  };
+  return devicesMappingFunctions(handledResult);
 };
 
 export const deleteDevice = async (deviceId: string) => {
@@ -122,4 +129,20 @@ export const deleteDevice = async (deviceId: string) => {
 
   queryResultHandler({ query: queryData });
   return queryData.count;
+};
+
+export const addDeviceActivity = async (input: AddDeviceActivityInput) => {
+  const queryData = await supabase.from('deviceActivityData').insert({
+    deviceId: input.deviceId,
+    latitude: input.latitude,
+    longitude: input.longitude,
+    broadcastingDay: dayjs.tz(
+      input?.broadcastingDay ?? dayjs(),
+      'Europe/Bucharest',
+    ),
+  });
+
+  queryResultHandler({ query: queryData });
+
+  return true;
 };

@@ -1,3 +1,4 @@
+import { teamsResolver } from './teamsResolver';
 import { devicesResolver } from './devicesResolver';
 
 import { clientsResolver } from './clientsResolver';
@@ -11,4 +12,5 @@ export {
   authenticationRespolver,
   clientsResolver,
   devicesResolver,
+  teamsResolver,
 };

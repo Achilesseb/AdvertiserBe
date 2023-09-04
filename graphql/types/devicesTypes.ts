@@ -27,6 +27,13 @@ input EditDeviceInput {
   identificator: String
 }
 
+input AddDeviceActivityInput{
+  deviceId: String!
+  latitude: Float!
+  longitude: Float!
+  broadcastingDay: String
+}
+
 type GetAllDevicesResponse {
   data: [DeviceModel]!
   count: Int!
@@ -39,6 +46,7 @@ type Query {
 
 type Mutation {
   addNewDevice(input: AddDeviceInput!): DeviceModel
+  addDeviceActivity(input: AddDeviceActivityInput!): Boolean
   editDevice(input: EditDeviceInput!): DeviceModel
   deleteDevice(deviceId: String!): Int
 }

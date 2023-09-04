@@ -1,13 +1,17 @@
 import {
+  AddDeviceActivityInput,
   AddDeviceModelInput,
   EditDeviceModelInput,
+  addDeviceActivity,
   addNewDevice,
   deleteDevice,
   editDevice,
   getAllDevices,
   getDeviceById,
 } from '../../models/devicesModel';
-import { createDeviceUserAssociation } from '../utils/associationsHandlers';
+import { doesDeviceExists } from '../utils/checkValuesHandlers';
+import { generateQueryResultError } from '../utils/errorHandlers';
+
 import { GetAllEntitiesArguments } from '../utils/modifiers';
 
 export const devicesResolver = {
@@ -22,6 +26,23 @@ export const devicesResolver = {
   Mutation: {
     addNewDevice: (_: undefined, { input }: { input: AddDeviceModelInput }) =>
       addNewDevice(input),
+
+    addDeviceActivity: async (
+      _: undefined,
+      { input }: { input: AddDeviceActivityInput },
+    ) => {
+      const deviceExists = await doesDeviceExists(input.deviceId);
+
+      if (!deviceExists)
+        return generateQueryResultError({
+          messageOverride: 'Device with this id not found',
+          statusOverride: 404,
+        });
+
+      const result = await addDeviceActivity(input);
+
+      return true;
+    },
 
     editDevice: (_: undefined, { input }: { input: EditDeviceModelInput }) =>
       editDevice(input),

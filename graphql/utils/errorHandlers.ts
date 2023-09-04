@@ -43,7 +43,7 @@ export const generateQueryResultError = ({
   statusOverride = 500,
 }: {
   messageOverride?: string;
-  error: PostgrestError;
+  error?: PostgrestError;
   statusOverride?: number;
 }) =>
   new GraphQLError(messageOverride ?? error?.message ?? '', {
