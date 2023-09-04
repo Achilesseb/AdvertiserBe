@@ -1,4 +1,3 @@
-import { query } from 'express';
 import {
   PromotionInput,
   EditPromotionInput,
@@ -6,8 +5,19 @@ import {
 import { queryResultHandler } from '../graphql/utils/errorHandlers';
 import supabase from '../supabase';
 import _ from 'lodash';
-import { PostgrestFilterBuilder } from '@supabase/postgrest-js';
-import { GenericSchema } from '@supabase/postgrest-js/dist/module/types';
+
+import { addQueryModifiers } from '../graphql/utils/modifiers';
+
+type PromotionModel = {
+  id: string;
+  title: string;
+  description: string;
+  url: string;
+  duration: number;
+  category: string;
+  fileName: string;
+  clients: unknown;
+};
 
 const promotionMapppingFunction = (results: { clients: unknown }) => {
   const { clients: client, ...data } = results;
@@ -17,66 +27,29 @@ const promotionMapppingFunction = (results: { clients: unknown }) => {
   };
 };
 
-const addPaginationModifiers = (
-  baseQuery: PostgrestFilterBuilder<
-    GenericSchema,
-    Record<string, unknown>,
-    unknown[]
-  >,
-  pagination: {
-    entitiesPerPage: number;
-    page: number;
-  },
-) => {
-  const entitiesPerPage = pagination.entitiesPerPage ?? 10;
-  const page = pagination.page ?? 1;
-  const startingIndex = entitiesPerPage * (page - 1);
-  const endingIndex = entitiesPerPage * page;
-
-  return baseQuery.range(startingIndex, endingIndex);
-};
-
-export const addQueryModifiers = async (
-  baseQuery: PostgrestFilterBuilder<
-    GenericSchema,
-    Record<string, unknown>,
-    unknown[]
-  >,
-  modifiers: {
-    pagination: {
-      entitiesPerPage: number;
-      page: number;
-    };
-  },
-) => {
-  const modifiersMapper = {
-    pagination: addPaginationModifiers,
-  };
-  return Object.entries(modifiers).reduce((query, [modifier, modifierArgs]) => {
-    modifiersMapper[modifier](query, modifierArgs);
-  }, baseQuery);
-};
-
 export const getAllPromotions = async (input: unknown) => {
   const dataQuery = supabase
     .from('promotions')
-    .select('*, clients(*)')
-    .eq('id', '123123213')
-    .range(0, 10);
+    .select<string, PromotionModel>('*, clients(*)', {
+      count: 'exact',
+    });
 
-  // if (!_.isEmpty(filters)) {
-  console.log(dataQuery);
-  // }
-  // const modifiedQuery =
-  // const handledResults = queryResultHandler({
-  //   query: dataQuery,
-  //   status: 404,
-  // });
+  const modifiedQuery = await addQueryModifiers<PromotionModel[]>(dataQuery, {
+    pagination: {
+      page: 1,
+      entitiesPerPage: 2,
+    },
+  });
 
-  // return {
-  //   data: handledResults.map(promotionMapppingFunction),
-  //   count: handledResults.length,
-  // };
+  const handledResults = queryResultHandler({
+    query: modifiedQuery,
+    status: 404,
+  }) as PromotionModel[];
+
+  return {
+    data: handledResults.map(promotionMapppingFunction),
+    count: modifiedQuery.count,
+  };
 };
 
 export const getPromotionById = async (promotionId: string) => {

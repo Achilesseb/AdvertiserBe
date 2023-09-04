@@ -28,8 +28,8 @@ export type EditUserInput = Omit<UserInput, 'role' | 'email'> & {
 
 export const usersResolver = {
   Query: {
-    getAllUsers: async () => getAllUsers(),
-    getUserById: async (_: undefined, { userId }: { userId: string }) =>
+    getAllUsers: () => getAllUsers(),
+    getUserById: (_: undefined, { userId }: { userId: string }) =>
       getUserById(userId),
   },
   Mutation: {
@@ -43,11 +43,9 @@ export const usersResolver = {
       return userData;
     },
 
-    editUser: async (_: undefined, { input }: { input: EditUserInput }) =>
+    editUser: (_: undefined, { input }: { input: EditUserInput }) =>
       editUser(input),
-    deleteUser: async (
-      _: undefined,
-      { usersIds }: { usersIds: Array<string> },
-    ) => deleteUser(usersIds),
+    deleteUser: (_: undefined, { usersIds }: { usersIds: Array<string> }) =>
+      deleteUser(usersIds),
   },
 };

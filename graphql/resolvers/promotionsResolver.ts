@@ -25,8 +25,8 @@ export type EditPromotionInput = Omit<
 
 export const promotionsResolver = {
   Query: {
-    getAllPromotions: async (_: unknown, input: any) => getAllPromotions(input),
-    getPromotionById: async (
+    getAllPromotions: (_: unknown, input: any) => getAllPromotions(input),
+    getPromotionById: (
       _: undefined,
       { promotionId }: { promotionId: string },
     ) => getPromotionById(promotionId),
@@ -43,11 +43,9 @@ export const promotionsResolver = {
 
       return promotionData;
     },
-    editPromotion: async (
-      _: undefined,
-      { input }: { input: EditPromotionInput },
-    ) => editPromotion(input),
-    deletePromotion: async (
+    editPromotion: (_: undefined, { input }: { input: EditPromotionInput }) =>
+      editPromotion(input),
+    deletePromotion: (
       _: undefined,
       { promotionIds }: { promotionIds: Array<string> },
     ) => deletePromotion(promotionIds),
