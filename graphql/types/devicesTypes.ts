@@ -8,6 +8,7 @@ type DeviceModel {
   location: String!
   inUse: Boolean!
   driver: UserModel 
+  identifier: String
 }
 
 input AddDeviceInput {
@@ -15,7 +16,7 @@ input AddDeviceInput {
   location: String!
   inUse: Boolean!
   driverId: String 
-  identificator: String!
+  identifier: String!
 }
 
 input EditDeviceInput {
@@ -24,7 +25,7 @@ input EditDeviceInput {
   location: String
   inUse: Boolean
   driverId: String 
-  identificator: String
+  identifier: String
 }
 
 input AddDeviceActivityInput{
@@ -38,9 +39,14 @@ type GetAllDevicesResponse {
   data: [DeviceModel]!
   count: Int!
 }
+
+ input GetAllDevicesInput {
+ pagination: PaginationArguments
+ }
+
 type Query {
 
-  getAllDevices: GetAllDevicesResponse!
+  getAllDevices(input: GetAllDevicesInput): GetAllDevicesResponse!
   getDeviceById(deviceId: String!): DeviceModel
 }
 

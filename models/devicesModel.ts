@@ -7,6 +7,7 @@ export type DeviceModel = {
   location: string;
   inUse: boolean;
   driver: UserModel;
+  identifier: string;
 };
 
 export type AddDeviceModelInput = Omit<DeviceModel, 'id' | 'driver'> & {

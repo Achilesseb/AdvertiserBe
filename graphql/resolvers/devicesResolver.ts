@@ -22,6 +22,9 @@ export const devicesResolver = {
     ) => getAllDevices(input ?? {}),
     getDeviceById: (_: undefined, { deviceId }: { deviceId: string }) =>
       getDeviceById(deviceId),
+
+    // getDevicePromotions: (_: undefined, { deviceId }: { deviceId: string }) =>
+    //   getDeviceById(deviceId),
   },
   Mutation: {
     addNewDevice: (_: undefined, { input }: { input: AddDeviceModelInput }) =>

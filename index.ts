@@ -15,8 +15,16 @@ export type PDFRequestCustomType = Request & {
   user?: any;
 };
 
+const corsDomains = process.env.CORS_DOMAINS?.split(',');
+
 (async () => {
-  app.use(express.json(), express.urlencoded({ extended: true }), cors());
+  app.use(
+    express.json(),
+    express.urlencoded({ extended: true }),
+    cors({
+      origin: corsDomains,
+    }),
+  );
   const httpServer = http.createServer(app);
 
   const index = await startApollo(httpServer);
