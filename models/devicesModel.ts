@@ -147,3 +147,24 @@ export const addDeviceActivity = async (input: AddDeviceActivityInput) => {
 
   return true;
 };
+
+export const getDevicePromotions = async (deviceId: string) => {
+  const dataQuery = await supabase
+    .from('devicesPromotionsView')
+    .select('*', { count: 'exact' })
+    .eq('deviceId', deviceId);
+
+  const handledResult = queryResultHandler({
+    query: dataQuery,
+    status: 409,
+  });
+
+  return {
+    data: handledResult,
+    count: dataQuery.count,
+  };
+};
+
+// export const checkAndUpdateDevicePromotions = async (deviceId: string) => {
+//   await supabase.from();
+// };

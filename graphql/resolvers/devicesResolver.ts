@@ -1,3 +1,4 @@
+import dayjs from 'dayjs';
 import {
   AddDeviceActivityInput,
   AddDeviceModelInput,
@@ -8,7 +9,9 @@ import {
   editDevice,
   getAllDevices,
   getDeviceById,
+  getDevicePromotions,
 } from '../../models/devicesModel';
+import supabase from '../../supabase';
 import { doesDeviceExists } from '../utils/checkValuesHandlers';
 import { generateQueryResultError } from '../utils/errorHandlers';
 
@@ -23,8 +26,24 @@ export const devicesResolver = {
     getDeviceById: (_: undefined, { deviceId }: { deviceId: string }) =>
       getDeviceById(deviceId),
 
-    // getDevicePromotions: (_: undefined, { deviceId }: { deviceId: string }) =>
-    //   getDeviceById(deviceId),
+    getDevicePromotions: async (
+      _: undefined,
+      { deviceId }: { deviceId: string },
+    ) => {
+      const devicePromotionsByDriver = await getDevicePromotions(deviceId);
+
+      const promotionIdsArray = devicePromotionsByDriver.data.map(
+        (obj: Record<string, string | unknown>) => obj.promotionId,
+      );
+
+      await supabase.rpc('updateDevicePromosInstances', {
+        deviceIdArg: deviceId,
+        dateArg: dayjs().format('YYYY-MM-DD'),
+        promotionIdsArg: promotionIdsArray,
+      });
+
+      return devicePromotionsByDriver;
+    },
   },
   Mutation: {
     addNewDevice: (_: undefined, { input }: { input: AddDeviceModelInput }) =>

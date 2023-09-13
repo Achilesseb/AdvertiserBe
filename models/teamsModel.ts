@@ -123,3 +123,5 @@ export const deleteTeam = async (teamIds: Array<string>) => {
   queryResultHandler({ query: queryData });
   return queryData.count;
 };
+
+const handleDevicePromotionUpdate = () => {};
