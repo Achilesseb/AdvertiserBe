@@ -5,6 +5,7 @@
   "main": "index.ts",
   "scripts": {
     "build": "vite build",
+    "serve": "node dist/index.mjs",
     "start": "node -r dotenv/config dist/index.mjs",
     "dev": "nodemon --config nodemon-config.json | pino-pretty",
     "test": "echo \"Error: no test specified\" && exit 1"
