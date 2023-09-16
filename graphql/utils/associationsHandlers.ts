@@ -10,7 +10,7 @@ export const createUserRoleAssociation = async (
     userId,
     roleId,
   });
-  queryResultHandler({ query: queryData });
+  return queryResultHandler({ query: queryData });
 };
 
 export const createPromotionsClientAssociation = async (

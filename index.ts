@@ -22,7 +22,7 @@ const corsDomains = process.env.CORS_DOMAINS?.split(',');
     express.json(),
     express.urlencoded({ extended: true }),
     cors({
-      origin: corsDomains,
+      origin: '*',
     }),
   );
   const httpServer = http.createServer(app);

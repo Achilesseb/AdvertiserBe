@@ -6,6 +6,7 @@ import {
   GetAllEntitiesArguments,
   addQueryModifiers,
 } from '../graphql/utils/modifiers';
+import { sendCreatedUserEmail } from '../utils/emailHandlers';
 
 export enum Roles {
   driver = 'driver',
@@ -21,10 +22,12 @@ export type UserModel = {
   team: string;
   email: string;
   carDetails: string;
-  tabletId: string;
   tablets: number;
   role: string;
   createdAt: string;
+  registrationCode: number;
+  deviceId: string;
+  teamId: string;
 };
 
 export const getAllUsers = async ({
@@ -63,8 +66,26 @@ export const getUserById = async (userId: string) => {
   return handledResults;
 };
 
+export const getUserByEmail = async (userEmail: string) => {
+  const dataQuery = await supabase
+    .from('users')
+    .select('*')
+    .eq('email', userEmail)
+    .single();
+
+  const handledResults = queryResultHandler({
+    query: dataQuery,
+    status: 404,
+  });
+
+  return handledResults;
+};
+
 export const addNewUser = async (input: UserInput) => {
-  const registrationCode = crypto.SHA256(input?.email, { outputLength: 5 });
+  const registrationCode = crypto
+    .SHA256(input?.email, { blockSize: 5 })
+    .toString()
+    .slice(0, 6);
   const dataQuery = await supabase
     .from('users')
     .upsert({
@@ -74,10 +95,12 @@ export const addNewUser = async (input: UserInput) => {
     .select('*')
     .single();
 
-  return queryResultHandler({
+  const handledResult = queryResultHandler({
     query: dataQuery,
     status: 406,
   });
+
+  return handledResult;
 };
 
 export const editUser = async (input: EditUserInput) => {

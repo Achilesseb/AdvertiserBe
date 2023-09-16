@@ -42,6 +42,9 @@ type DevicePromotionModel {
   title: String
   duration: Int
   promotionId: String
+  clientId: String,
+  clientName: String,
+  clientPage: String
 }
 
 type GetDevicePromotionsResponse {
@@ -57,6 +60,14 @@ type GetAllDevicesResponse {
  input GetAllDevicesInput {
  pagination: PaginationArguments
  }
+
+type DeviceSubsciptionReturnType {
+  deviceId: String,
+  groupId: String,
+}
+ type Subscription {
+  deviceStatusChanged(groupId: String!): DeviceSubsciptionReturnType
+}
 
 type Query {
 

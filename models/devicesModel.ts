@@ -1,33 +1,5 @@
 import { UserModel } from './usersModel';
 
-export type DeviceModel = {
-  id: string;
-  createAt: string;
-  system: string;
-  location: string;
-  inUse: boolean;
-  driver: UserModel;
-  identifier: string;
-};
-
-export type AddDeviceModelInput = Omit<DeviceModel, 'id' | 'driver'> & {
-  driverId?: string;
-};
-
-export type EditDeviceModelInput = Omit<DeviceModel, 'driver'> & {
-  driverId?: string;
-};
-
-export type DeviceModelReturnType = Omit<DeviceModel, 'driver'> & {
-  users: UserModel;
-};
-export type AddDeviceActivityInput = {
-  deviceId: string;
-  latitude: number;
-  longitude: number;
-  broadcastingDay: string;
-};
-
 import { queryResultHandler } from '../graphql/utils/errorHandlers';
 import supabase from '../supabase';
 import {
@@ -37,6 +9,7 @@ import {
 import dayjs from 'dayjs';
 import utc from 'dayjs/plugin/utc';
 import tz from 'dayjs/plugin/timezone';
+import { TeamModel } from './teamsModel';
 
 dayjs.extend(utc);
 dayjs.extend(tz);
@@ -45,6 +18,18 @@ const devicesMappingFunctions = (result: DeviceModelReturnType) => {
   return {
     ...deviceDataResult,
     driver: users,
+  };
+};
+
+const devicesJoinedTablesMappingFunction = (
+  result: DeviceModelJoinedReturnType,
+) => {
+  const { users, ...deviceDataResult } = result;
+  const { teams, ...userData } = users[0];
+  return {
+    ...deviceDataResult,
+    driver: userData,
+    team: teams,
   };
 };
 
@@ -107,19 +92,24 @@ export const addNewDevice = async (deviceData: AddDeviceModelInput) => {
 };
 
 export const editDevice = async (deviceData: EditDeviceModelInput) => {
+  console.log(deviceData);
   const dataQuery = await supabase
     .from('devices')
     .update(deviceData)
     .eq('id', deviceData.id)
-    .select('*, users(*)')
+    .select<string, DeviceModelJoinedReturnType>(
+      `
+    *, users(*, teams(*))
+
+  `,
+    )
     .single();
 
   const handledResult = queryResultHandler({
     query: dataQuery,
     status: 409,
-  }) as DeviceModelReturnType;
-
-  return devicesMappingFunctions(handledResult);
+  }) as DeviceModelJoinedReturnType;
+  return devicesJoinedTablesMappingFunction(handledResult);
 };
 
 export const deleteDevice = async (deviceId: string) => {
@@ -165,6 +155,33 @@ export const getDevicePromotions = async (deviceId: string) => {
   };
 };
 
-// export const checkAndUpdateDevicePromotions = async (deviceId: string) => {
-//   await supabase.from();
-// };
+export type DeviceModel = {
+  id: string;
+  createAt: string;
+  system: string;
+  location: string;
+  inUse: boolean;
+  driver: UserModel;
+  identifier: string;
+};
+
+export type AddDeviceModelInput = Omit<DeviceModel, 'id' | 'driver'> & {
+  driverId?: string;
+};
+
+export type EditDeviceModelInput = Omit<DeviceModel, 'driver'> & {
+  driverId?: string;
+};
+
+export type DeviceModelReturnType = Omit<DeviceModel, 'driver'> & {
+  users: UserModel;
+};
+export type DeviceModelJoinedReturnType = DeviceModel & {
+  users: Array<UserModel & { teams: TeamModel }>;
+};
+export type AddDeviceActivityInput = {
+  deviceId: string;
+  latitude: number;
+  longitude: number;
+  broadcastingDay: string;
+};

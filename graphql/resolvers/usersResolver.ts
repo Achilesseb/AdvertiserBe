@@ -6,9 +6,11 @@ import {
   deleteUser,
   editUser,
   getAllUsers,
+  getUserByEmail,
   getUserById,
 } from '../../models/usersModel';
 import { createUserRoleAssociation } from '../utils/associationsHandlers';
+import { sendCreatedUserEmail } from '../../utils/emailHandlers';
 
 export type UserInput = {
   name: string;
@@ -33,16 +35,19 @@ export const usersResolver = {
       getAllUsers(input ?? {}),
     getUserById: (_: undefined, { userId }: { userId: string }) =>
       getUserById(userId),
+    getUserByEmail: (_: undefined, { userEmail }: { userEmail: string }) =>
+      getUserByEmail(userEmail),
   },
   Mutation: {
     addNewUser: async (_: undefined, { input }: { input: UserInput }) => {
       const userData = await addNewUser(input);
 
-      const roleData = await getRole(Roles.driver);
+      await sendCreatedUserEmail({
+        recipient: userData.email,
+        emailVars: { token: userData.registrationCode },
+      });
 
-      await createUserRoleAssociation(userData.id, roleData.id);
-
-      return userData;
+      return { ...userData };
     },
 
     editUser: (_: undefined, { input }: { input: EditUserInput }) =>

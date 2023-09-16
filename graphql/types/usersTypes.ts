@@ -6,14 +6,14 @@ export const usersTypes = `#graphql
         address: String,
         registrationPlate: String,
         phone: String,
-        team: String,
+        teamId: String,
         email: String,
         carDetails: String,
-        tabletId: String,
+        deviceId: String,
         city: String
         tablets: Int,
         role: String,
-
+    
     }
 
     input AddUserInput {
@@ -51,6 +51,7 @@ export const usersTypes = `#graphql
     type Query {
         getAllUsers: GetAllUsersReponse
         getUserById(userId: String): UserModel!
+        getUserByEmail(userEmail: String): UserModel!
     }
     type Mutation {
         addNewUser(input: AddUserInput!): UserModel

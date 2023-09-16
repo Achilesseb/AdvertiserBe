@@ -17,7 +17,43 @@ import { generateQueryResultError } from '../utils/errorHandlers';
 
 import { GetAllEntitiesArguments } from '../utils/modifiers';
 
+import { PubSub } from 'graphql-subscriptions';
+
+// Define types for your PubSub instance
+interface MyPubSubInstance {
+  publish: (triggerName: string, payload: any) => void;
+  asyncIterator: (triggers: string | string[]) => AsyncIterator<any>;
+  subscribe: (
+    triggers: string,
+    onMessage: (message: any) => void,
+  ) => Promise<number>;
+  unsubscribe: (subscriptionId: number) => void;
+  // Add any other methods or properties specific to your PubSub instance
+}
+
+// Create an instance of your PubSub
+const pubsub: MyPubSubInstance = new PubSub();
+
 export const devicesResolver = {
+  Subscription: {
+    deviceStatusChanged: {
+      subscribe: (_parent: unknown, { groupId }: { groupId: string }) => {
+        return pubsub?.asyncIterator(['DEVICE_STATUS_CHANGED', groupId]);
+      },
+      resolve: (
+        payload: { groupId: string; deviceStatusChanged: unknown },
+        args: { groupId: string },
+      ) => {
+        if (payload.groupId === args.groupId) {
+          return {
+            deviceId: payload.deviceStatusChanged,
+            groupId: payload.groupId,
+          };
+        }
+        return null;
+      },
+    },
+  },
   Query: {
     getAllDevices: (
       _: unknown,
@@ -66,8 +102,20 @@ export const devicesResolver = {
       return true;
     },
 
-    editDevice: (_: undefined, { input }: { input: EditDeviceModelInput }) =>
-      editDevice(input),
+    editDevice: async (
+      _: undefined,
+      { input }: { input: EditDeviceModelInput },
+    ) => {
+      console.log(input);
+      const data = await editDevice(input);
+
+      const teamId = data.driver.teamId;
+      pubsub.publish('DEVICE_STATUS_CHANGED', {
+        deviceStatusChanged: input.id,
+        groupId: teamId,
+      });
+      return data;
+    },
 
     deleteDevice: (_: undefined, { deviceId }: { deviceId: string }) =>
       deleteDevice(deviceId),

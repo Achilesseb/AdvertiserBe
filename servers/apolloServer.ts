@@ -10,17 +10,10 @@ import * as resolvers from '../graphql/resolvers/index';
 import { Maybe } from 'graphql/jsutils/Maybe';
 import { IResolvers } from '@graphql-tools/utils';
 import supabase from '../supabase';
+import { WebSocketServer } from 'ws';
+import { useServer } from 'graphql-ws/lib/use/ws';
 
 export const startApollo = async (httpServer: http.Server) => {
-  const plugins = [
-    ApolloServerPluginLandingPageProductionDefault({
-      embed: true,
-      graphRef: 'myGraph@prod',
-      includeCookies: true,
-    }),
-    ApolloServerPluginDrainHttpServer({ httpServer }),
-  ];
-
   let schema = makeExecutableSchema({
     typeDefs: mergeTypeDefs(
       Object.values({
@@ -31,6 +24,32 @@ export const startApollo = async (httpServer: http.Server) => {
       Object.values(resolvers as unknown as Maybe<IResolvers<any, unknown>>[]),
     ),
   });
+  const wsServer = new WebSocketServer({
+    // This is the `httpServer` we created in a previous step.
+    server: httpServer,
+    // Pass a different path here if app.use
+    // serves expressMiddleware at a different path
+    path: '/subscriptions',
+  });
+  const serverCleanup = useServer({ schema }, wsServer);
+
+  const plugins = [
+    ApolloServerPluginLandingPageProductionDefault({
+      // embed: true,
+      // graphRef: 'myGraph@prod',
+      // includeCookies: true,
+    }),
+    ApolloServerPluginDrainHttpServer({ httpServer }),
+    {
+      async serverWillStart() {
+        return {
+          async drainServer() {
+            await serverCleanup.dispose();
+          },
+        };
+      },
+    },
+  ];
 
   const server = new ApolloServer({
     schema,

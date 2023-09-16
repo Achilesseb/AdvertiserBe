@@ -5,9 +5,14 @@ import {
 } from '../../constants/queryErrorMessages';
 import supabase from '../../supabase';
 import { generateQueryResultError } from '../utils/errorHandlers';
+import { confirmUserRegistration } from '../../models/authenticationModel';
 
 export const authenticationRespolver = {
   Mutation: {
+    confirmUserRegistration: (
+      _: unknown,
+      { input }: { input: UserRegistrationInputTypes },
+    ) => confirmUserRegistration(input),
     loginUser: async (
       _: unknown,
       { email, password }: { email: string; password: string },
@@ -75,4 +80,9 @@ export const authenticationRespolver = {
       }
     },
   },
+};
+export type UserRegistrationInputTypes = {
+  email: string;
+  password: string;
+  registrationCode: number;
 };

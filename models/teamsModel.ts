@@ -7,14 +7,14 @@ import { queryResultHandler } from '../graphql/utils/errorHandlers';
 import supabase from '../supabase';
 import { EditTeamInput, TeamInput } from '../graphql/resolvers/teamsResolver';
 
-type TeamModel = {
+export type TeamModel = {
   id: string;
   city: string;
   name: string;
   createdAt: string;
 };
 
-type TeamModelView = {
+export type TeamModelView = {
   id: string;
   city: string;
   name: string;
