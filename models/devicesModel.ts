@@ -10,6 +10,8 @@ import dayjs from 'dayjs';
 import utc from 'dayjs/plugin/utc';
 import tz from 'dayjs/plugin/timezone';
 import { TeamModel } from './teamsModel';
+import { createDeviceUserAssociation } from '../graphql/utils/associationsHandlers';
+import _ from 'lodash';
 
 dayjs.extend(utc);
 dayjs.extend(tz);
@@ -17,7 +19,7 @@ const devicesMappingFunctions = (result: DeviceModelReturnType) => {
   const { users, ...deviceDataResult } = result;
   return {
     ...deviceDataResult,
-    driver: users,
+    driver: users[0],
   };
 };
 
@@ -25,7 +27,7 @@ const devicesJoinedTablesMappingFunction = (
   result: DeviceModelJoinedReturnType,
 ) => {
   const { users, ...deviceDataResult } = result;
-  const { teams, ...userData } = users[0];
+  const { teams, ...userData } = users?.[0] ?? {};
   return {
     ...deviceDataResult,
     driver: userData,
@@ -42,7 +44,12 @@ export const getAllDevices = async ({
     .select<string, DeviceModelReturnType>('*, users(*)', {
       count: 'exact',
     });
-
+  if (filters) {
+    const filtersObject = Object.entries(filters);
+    filtersObject.forEach(filter =>
+      dataQuery.ilike(filter[0], `%${filter[1]}%`),
+    );
+  }
   const modifiedQuery = await addQueryModifiers<DeviceModelReturnType[]>(
     dataQuery,
     {
@@ -58,6 +65,42 @@ export const getAllDevices = async ({
   return {
     data: handledResults.map(devicesMappingFunctions),
     count: modifiedQuery.count,
+  };
+};
+
+export const getAllAvailableDevices = async ({
+  filters,
+}: GetAllEntitiesArguments) => {
+  const dataQuery = supabase
+    .from('devices')
+    .select('*, users(id)', { count: 'exact' });
+
+  if (filters) {
+    const filtersObject = Object.entries(filters);
+    filtersObject.forEach(filter =>
+      dataQuery.ilike(filter[0], `%${filter[1]}%`),
+    );
+  }
+  const modifiedQuery = await addQueryModifiers<DeviceModelReturnType[]>(
+    dataQuery,
+    {
+      pagination: {
+        entitiesPerPage: 1000,
+      },
+    },
+  );
+
+  const handledResults = queryResultHandler({
+    query: modifiedQuery,
+    status: 404,
+  }) as DeviceModelReturnType[];
+
+  const filteredDevices = handledResults.filter(devices =>
+    _.isEmpty(devices.users),
+  );
+  return {
+    data: filteredDevices,
+    count: filteredDevices.length,
   };
 };
 
@@ -92,11 +135,11 @@ export const addNewDevice = async (deviceData: AddDeviceModelInput) => {
 };
 
 export const editDevice = async (deviceData: EditDeviceModelInput) => {
-  console.log(deviceData);
+  const { deviceId, ...editFields } = deviceData;
   const dataQuery = await supabase
     .from('devices')
-    .update(deviceData)
-    .eq('id', deviceData.id)
+    .update(editFields)
+    .eq('id', deviceData.deviceId)
     .select<string, DeviceModelJoinedReturnType>(
       `
     *, users(*, teams(*))
@@ -155,8 +198,27 @@ export const getDevicePromotions = async (deviceId: string) => {
   };
 };
 
-export type DeviceModel = {
+export type DeviceSimpleModel = {
   id: string;
+  createAt: string;
+  system: string;
+  location: string;
+  inUse: boolean;
+  identifier: string;
+};
+
+export type DBDeviceModel = {
+  id: string;
+  createAt: string;
+  system: string;
+  location: string;
+  inUse: boolean;
+  driver: UserModel;
+  identifier: string;
+};
+
+export type DeviceModel = {
+  deviceId: string;
   createAt: string;
   system: string;
   location: string;
@@ -169,12 +231,10 @@ export type AddDeviceModelInput = Omit<DeviceModel, 'id' | 'driver'> & {
   driverId?: string;
 };
 
-export type EditDeviceModelInput = Omit<DeviceModel, 'driver'> & {
-  driverId?: string;
-};
+export type EditDeviceModelInput = Omit<DeviceModel, 'driver'>;
 
 export type DeviceModelReturnType = Omit<DeviceModel, 'driver'> & {
-  users: UserModel;
+  users: Array<UserModel>;
 };
 export type DeviceModelJoinedReturnType = DeviceModel & {
   users: Array<UserModel & { teams: TeamModel }>;

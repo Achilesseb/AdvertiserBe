@@ -6,13 +6,14 @@ export const usersTypes = `#graphql
         address: String,
         registrationPlate: String,
         phone: String,
-        teamId: String,
+        teamName: String,
         email: String,
-        carDetails: String,
+        car: String,
         deviceId: String,
         city: String
         tablets: Int,
         role: String,
+        createdAt: String
     
     }
 
@@ -21,41 +22,65 @@ export const usersTypes = `#graphql
         address: String,
         registrationPlate: String,
         phone: String!,
-        team: String,
+        teamId: String,
         email: String!,
-        carDetails: String,
-        tabletId: String,
+        car: String,
+        deviceId: String,
         city: String!
-        tablets: Int,
+   
     }
 
     input EditUserInput {
-        id: String!
+        userId: String!
         name: String,
         address: String,
         registrationPlate: String,
         phone: String,
-        team: String,
+        teamId: String,
         email: String,
-        carDetails: String,
-        tabletId: String,
+        car: String,
+        deviceId: String,
         city: String
-        tablets: Int,
+     
     }
 
     type GetAllUsersReponse {
         count: Int,
         data: [UserModel]!
     }
+    input UsersFilters {
+        name: String
+        city: String
+    }
+
+    input GetAllUsersInput {
+    pagination: PaginationArguments
+    filters: UsersFilters
+}
+
+    type UserAndDeviceResultTypes {
+        name: String
+        phone: String
+        email: String
+        city: String
+        role: String
+        address: String
+        car: String
+        registrationPlate: String
+        driverId: String
+        device: DeviceSimpleModel
+        team: TeamModel
+    }
 
     type Query {
-        getAllUsers: GetAllUsersReponse
-        getUserById(userId: String): UserModel!
+        getAllUsers(input: GetAllUsersInput): GetAllUsersReponse
+        getAllAvailableUsers(input: GetAllUsersInput): GetAllUsersReponse
+        getUserById(userId: String): UserAndDeviceResultTypes
         getUserByEmail(userEmail: String): UserModel!
     }
     type Mutation {
-        addNewUser(input: AddUserInput!): UserModel
-        editUser(input: EditUserInput!): UserModel
+        addNewUser(input: AddUserInput!): UserAndDeviceResultTypes
+        editUser(input: EditUserInput!): UserAndDeviceResultTypes
         deleteUser(usersIds: [String]!): Int
     }
 

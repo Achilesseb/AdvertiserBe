@@ -27,12 +27,15 @@ export const createPromotionsClientAssociation = async (
 
 export const createDeviceUserAssociation = async (
   driverId?: string,
-  tabletId?: string,
+  deviceId?: string,
 ) => {
-  if (!driverId || !tabletId) return;
-  const queryData = await supabase.from('usersDevices').insert({
-    driverId,
-    tabletId,
-  });
+  if (!driverId || !deviceId) return;
+  const queryData = await supabase
+    .from('users')
+    .update({
+      deviceId,
+    })
+    .eq('id', driverId);
+
   queryResultHandler({ query: queryData });
 };

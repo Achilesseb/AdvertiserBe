@@ -2,11 +2,14 @@ import dayjs from 'dayjs';
 import {
   AddDeviceActivityInput,
   AddDeviceModelInput,
+  DBDeviceModel,
+  DeviceModel,
   EditDeviceModelInput,
   addDeviceActivity,
   addNewDevice,
   deleteDevice,
   editDevice,
+  getAllAvailableDevices,
   getAllDevices,
   getDeviceById,
   getDevicePromotions,
@@ -18,6 +21,7 @@ import { generateQueryResultError } from '../utils/errorHandlers';
 import { GetAllEntitiesArguments } from '../utils/modifiers';
 
 import { PubSub } from 'graphql-subscriptions';
+import { createDeviceUserAssociation } from '../utils/associationsHandlers';
 
 // Define types for your PubSub instance
 interface MyPubSubInstance {
@@ -59,6 +63,10 @@ export const devicesResolver = {
       _: unknown,
       { input }: { input: GetAllEntitiesArguments },
     ) => getAllDevices(input ?? {}),
+    getAllAvailableDevices: (
+      _: unknown,
+      { input }: { input: GetAllEntitiesArguments },
+    ) => getAllAvailableDevices(input ?? {}),
     getDeviceById: (_: undefined, { deviceId }: { deviceId: string }) =>
       getDeviceById(deviceId),
 
@@ -82,8 +90,21 @@ export const devicesResolver = {
     },
   },
   Mutation: {
-    addNewDevice: (_: undefined, { input }: { input: AddDeviceModelInput }) =>
-      addNewDevice(input),
+    addNewDevice: async (
+      _: undefined,
+      { input }: { input: AddDeviceModelInput },
+    ) => {
+      const { driverId, ...editInputs } = input;
+
+      const result = (await addNewDevice(
+        editInputs,
+      )) as unknown as DBDeviceModel;
+
+      if (driverId) {
+        createDeviceUserAssociation(driverId, result?.id);
+      }
+      return result;
+    },
 
     addDeviceActivity: async (
       _: undefined,
@@ -106,12 +127,11 @@ export const devicesResolver = {
       _: undefined,
       { input }: { input: EditDeviceModelInput },
     ) => {
-      console.log(input);
       const data = await editDevice(input);
 
       const teamId = data.driver.teamId;
       pubsub.publish('DEVICE_STATUS_CHANGED', {
-        deviceStatusChanged: input.id,
+        deviceStatusChanged: input.deviceId,
         groupId: teamId,
       });
       return data;

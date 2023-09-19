@@ -1,5 +1,13 @@
 export const devicesTypes = `#graphql
 
+type DeviceSimpleModel {
+  id: String!
+  createdAt: String!
+  system: String!
+  location: String!
+  inUse: Boolean!
+  identifier: String
+}
 
 type DeviceModel {
   id: String!
@@ -20,11 +28,10 @@ input AddDeviceInput {
 }
 
 input EditDeviceInput {
-  id:String!
+  deviceId:String!
   system: String
   location: String
   inUse: Boolean
-  driverId: String 
   identifier: String
 }
 
@@ -57,8 +64,14 @@ type GetAllDevicesResponse {
   count: Int!
 }
 
+input DeviceFilter {
+  location: String
+  identifier: String
+}
+
  input GetAllDevicesInput {
  pagination: PaginationArguments
+ filters: DeviceFilter
  }
 
 type DeviceSubsciptionReturnType {
@@ -72,6 +85,7 @@ type DeviceSubsciptionReturnType {
 type Query {
 
   getAllDevices(input: GetAllDevicesInput): GetAllDevicesResponse!
+  getAllAvailableDevices(input: GetAllDevicesInput):GetAllDevicesResponse
   getDeviceById(deviceId: String!): DeviceModel
   getDevicePromotions(deviceId: String!): GetDevicePromotionsResponse
 }

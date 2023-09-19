@@ -1,3 +1,4 @@
+import { PaginationArguments } from './../utils/modifiers';
 export const teamsTypes = `#graphql
 type TeamModel {
     id: String,
@@ -46,8 +47,17 @@ input EditTeamInput {
   city: String
 }
 
+input GetAllTeamFiltersInput { 
+  teamName: String
+}
+
+input GetAllTeamTypesInput { 
+  pagination: PaginationArguments
+  filters: GetAllTeamFiltersInput 
+}
+
 type Query {
-  getAllTeams: GetAllTeamsResponse
+  getAllTeams(input: GetAllTeamTypesInput): GetAllTeamsResponse
   getTeamById(teamId: String!): TeamModelView!
   getTeamDrivers(input:GetAllEntitiesArguments!): GetTeamDriversResponse
 }

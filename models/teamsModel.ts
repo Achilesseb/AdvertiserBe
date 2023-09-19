@@ -25,9 +25,17 @@ export type TeamModelView = {
   totalDurations: number;
 };
 
-export const getAllTeams = async ({ pagination }: GetAllEntitiesArguments) => {
+export const getAllTeams = async ({
+  pagination,
+  filters,
+}: GetAllEntitiesArguments) => {
   const dataQuery = supabase.from('teamsView').select('*', { count: 'exact' });
-
+  if (filters) {
+    const filtersObject = Object.entries(filters);
+    filtersObject.forEach(filter =>
+      dataQuery.ilike(filter[0], `%${filter[1]}%`),
+    );
+  }
   const modifiedQuery = await addQueryModifiers<TeamModelView[]>(dataQuery, {
     pagination,
   });

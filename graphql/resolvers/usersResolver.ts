@@ -5,6 +5,7 @@ import {
   addNewUser,
   deleteUser,
   editUser,
+  getAllAvailableUsers,
   getAllUsers,
   getUserByEmail,
   getUserById,
@@ -23,16 +24,21 @@ export type UserInput = {
   registrationPlate?: string;
   tabletId?: string;
   tablets?: number;
+  driverId: string;
 };
 
 export type EditUserInput = Omit<UserInput, 'role' | 'email'> & {
-  id: string;
+  userId: string;
 };
 
 export const usersResolver = {
   Query: {
     getAllUsers: (_: unknown, { input }: { input: GetAllEntitiesArguments }) =>
       getAllUsers(input ?? {}),
+    getAllAvailableUsers: (
+      _: unknown,
+      { input }: { input: GetAllEntitiesArguments },
+    ) => getAllAvailableUsers(input ?? {}),
     getUserById: (_: undefined, { userId }: { userId: string }) =>
       getUserById(userId),
     getUserByEmail: (_: undefined, { userEmail }: { userEmail: string }) =>
