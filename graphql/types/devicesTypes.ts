@@ -36,9 +36,11 @@ input EditDeviceInput {
 }
 
 input AddDeviceActivityInput{
+  userId: String!
   deviceId: String!
   latitude: Float!
   longitude: Float!
+  distanceDriven: Float!
   broadcastingDay: String
 }
 

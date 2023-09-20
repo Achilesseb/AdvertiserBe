@@ -181,11 +181,13 @@ export const deleteDevice = async (deviceId: string) => {
 
 export const addDeviceActivity = async (input: AddDeviceActivityInput) => {
   const queryData = await supabase.from('deviceActivityData').insert({
+    userId: input.userId,
     deviceId: input.deviceId,
     latitude: input.latitude,
     longitude: input.longitude,
+    distanceDriven: input.distanceDriven,
     broadcastingDay: dayjs.tz(
-      input?.broadcastingDay ?? dayjs(),
+      input.broadcastingDay ? dayjs(Number(input.broadcastingDay)) : dayjs(),
       'Europe/Bucharest',
     ),
   });
@@ -254,8 +256,10 @@ export type DeviceModelJoinedReturnType = DeviceModel & {
   users: Array<UserModel & { teams: TeamModel }>;
 };
 export type AddDeviceActivityInput = {
+  userId: string;
   deviceId: string;
   latitude: number;
   longitude: number;
   broadcastingDay: string;
+  distanceDriven: number;
 };
