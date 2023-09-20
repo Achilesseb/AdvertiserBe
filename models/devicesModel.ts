@@ -10,7 +10,6 @@ import dayjs from 'dayjs';
 import utc from 'dayjs/plugin/utc';
 import tz from 'dayjs/plugin/timezone';
 import { TeamModel } from './teamsModel';
-import { createDeviceUserAssociation } from '../graphql/utils/associationsHandlers';
 import _ from 'lodash';
 
 dayjs.extend(utc);
@@ -109,6 +108,21 @@ export const getDeviceById = async (deviceId: string) => {
     .from('devices')
     .select('*, users(*)')
     .eq('id', deviceId)
+    .single();
+
+  const handledResult = queryResultHandler({
+    query: dataQuery,
+    status: 404,
+  }) as DeviceModelReturnType;
+
+  return devicesMappingFunctions(handledResult);
+};
+
+export const getDeviceByDeviceUniqueId = async (deviceUniqueId: string) => {
+  const dataQuery = await supabase
+    .from('devices')
+    .select('*, users(*)')
+    .eq('identifier', deviceUniqueId)
     .single();
 
   const handledResult = queryResultHandler({
