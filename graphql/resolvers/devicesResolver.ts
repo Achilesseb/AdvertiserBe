@@ -47,7 +47,6 @@ export const devicesResolver = {
         payload: { groupId: string; deviceStatusChanged: unknown },
         args: { groupId: string },
       ) => {
-        console.log("Solving")
         if (payload.groupId === args.groupId) {
           return {
             deviceId: payload.deviceStatusChanged,
