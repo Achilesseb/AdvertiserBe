@@ -1,3 +1,4 @@
+import { deviationTypes } from './deviationConstantTypes';
 import { generalTypes } from './generalTypes';
 import { teamsTypes } from './teamsTypes';
 import { devicesTypes } from './devicesTypes';
@@ -14,4 +15,5 @@ export {
   clientsTypes,
   devicesTypes,
   teamsTypes,
+  deviationTypes,
 };
