@@ -36,9 +36,11 @@ input EditDeviceInput {
 }
 
 input AddDeviceActivityInput{
+  userId: String!
   deviceId: String!
   latitude: Float!
   longitude: Float!
+  distanceDriven: Float!
   broadcastingDay: String
 }
 
@@ -87,6 +89,7 @@ type Query {
   getAllDevices(input: GetAllDevicesInput): GetAllDevicesResponse!
   getAllAvailableDevices(input: GetAllDevicesInput):GetAllDevicesResponse
   getDeviceById(deviceId: String!): DeviceModel
+  getDeviceByDeviceUniqueId(identifier: String!): DeviceModel
   getDevicePromotions(deviceId: String!): GetDevicePromotionsResponse
 }
 

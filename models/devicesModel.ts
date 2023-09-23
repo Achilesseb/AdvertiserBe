@@ -10,7 +10,6 @@ import dayjs from 'dayjs';
 import utc from 'dayjs/plugin/utc';
 import tz from 'dayjs/plugin/timezone';
 import { TeamModel } from './teamsModel';
-import { createDeviceUserAssociation } from '../graphql/utils/associationsHandlers';
 import _ from 'lodash';
 
 dayjs.extend(utc);
@@ -119,6 +118,21 @@ export const getDeviceById = async (deviceId: string) => {
   return devicesMappingFunctions(handledResult);
 };
 
+export const getDeviceByDeviceUniqueId = async (deviceUniqueId: string) => {
+  const dataQuery = await supabase
+    .from('devices')
+    .select('*, users(*)')
+    .eq('identifier', deviceUniqueId)
+    .single();
+
+  const handledResult = queryResultHandler({
+    query: dataQuery,
+    status: 404,
+  }) as DeviceModelReturnType;
+
+  return devicesMappingFunctions(handledResult);
+};
+
 export const addNewDevice = async (deviceData: AddDeviceModelInput) => {
   const dataQuery = await supabase
     .from('devices')
@@ -167,11 +181,13 @@ export const deleteDevice = async (devicesIds: string[]) => {
 
 export const addDeviceActivity = async (input: AddDeviceActivityInput) => {
   const queryData = await supabase.from('deviceActivityData').insert({
+    userId: input.userId,
     deviceId: input.deviceId,
     latitude: input.latitude,
     longitude: input.longitude,
+    distanceDriven: input.distanceDriven,
     broadcastingDay: dayjs.tz(
-      input?.broadcastingDay ?? dayjs(),
+      input.broadcastingDay ? dayjs(Number(input.broadcastingDay)) : dayjs(),
       'Europe/Bucharest',
     ),
   });
@@ -240,8 +256,10 @@ export type DeviceModelJoinedReturnType = DeviceModel & {
   users: Array<UserModel & { teams: TeamModel }>;
 };
 export type AddDeviceActivityInput = {
+  userId: string;
   deviceId: string;
   latitude: number;
   longitude: number;
   broadcastingDay: string;
+  distanceDriven: number;
 };
