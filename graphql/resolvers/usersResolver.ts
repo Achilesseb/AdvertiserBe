@@ -4,8 +4,10 @@ import {
   Roles,
   addNewUser,
   deleteUser,
+  deleteUserFromTeam,
   editUser,
   getAllAvailableUsers,
+  getAllUnTeamedUsers,
   getAllUsers,
   getUserByEmail,
   getUserById,
@@ -39,6 +41,10 @@ export const usersResolver = {
       _: unknown,
       { input }: { input: GetAllEntitiesArguments },
     ) => getAllAvailableUsers(input ?? {}),
+    getAllUnTeamedUsers: (
+      _: unknown,
+      { input }: { input: GetAllEntitiesArguments },
+    ) => getAllUnTeamedUsers(input ?? {}),
     getUserById: (_: undefined, { userId }: { userId: string }) =>
       getUserById(userId),
     getUserByEmail: (_: undefined, { userEmail }: { userEmail: string }) =>
@@ -58,6 +64,10 @@ export const usersResolver = {
 
     editUser: (_: undefined, { input }: { input: EditUserInput }) =>
       editUser(input),
+    deleteUserFromTeam: (
+      _: undefined,
+      { usersIds }: { usersIds: Array<string> },
+    ) => deleteUserFromTeam(usersIds),
     deleteUser: (_: undefined, { usersIds }: { usersIds: Array<string> }) =>
       deleteUser(usersIds),
   },

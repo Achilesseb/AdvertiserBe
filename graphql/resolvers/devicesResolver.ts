@@ -137,7 +137,7 @@ export const devicesResolver = {
       return data;
     },
 
-    deleteDevice: (_: undefined, { deviceId }: { deviceId: string }) =>
-      deleteDevice(deviceId),
+    deleteDevice: (_: undefined, { devicesIds }: { devicesIds: string[] }) =>
+      deleteDevice(devicesIds),
   },
 };

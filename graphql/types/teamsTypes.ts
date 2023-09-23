@@ -58,7 +58,7 @@ input GetAllTeamTypesInput {
 
 type Query {
   getAllTeams(input: GetAllTeamTypesInput): GetAllTeamsResponse
-  getTeamById(teamId: String!): TeamModelView!
+  getTeamById(id: String!): TeamModelView!
   getTeamDrivers(input:GetAllEntitiesArguments!): GetTeamDriversResponse
 }
 

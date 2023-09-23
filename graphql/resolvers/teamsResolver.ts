@@ -24,8 +24,7 @@ export const teamsResolver = {
   Query: {
     getAllTeams: (_: unknown, { input }: { input: GetAllEntitiesArguments }) =>
       getAllTeams(input ?? {}),
-    getTeamById: (_: undefined, { teamId }: { teamId: string }) =>
-      getTeamById(teamId),
+    getTeamById: (_: undefined, { id }: { id: string }) => getTeamById(id),
     getTeamDrivers: (
       _: unknown,
       { input }: { input: GetAllEntitiesArguments },

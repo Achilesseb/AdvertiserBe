@@ -226,6 +226,52 @@ export const getAllAvailableUsers = async ({
   };
 };
 
+export const getAllUnTeamedUsers = async ({
+  pagination,
+  filters,
+}: GetAllEntitiesArguments) => {
+  const dataQuery = supabase.from('users').select('*', { count: 'exact' });
+
+  if (filters) {
+    const filtersObject = Object.entries(filters);
+    filtersObject.forEach(filter =>
+      dataQuery.ilike(filter[0], `%${filter[1]}%`),
+    );
+  }
+  const modifiedQuery = await addQueryModifiers<UserModel[]>(dataQuery, {
+    pagination: {
+      entitiesPerPage: 1000,
+    },
+  });
+
+  const handledResults = queryResultHandler({
+    query: modifiedQuery,
+    status: 404,
+  }) as UserModel[];
+
+  const filteredUsers = handledResults.filter(users => users.teamId === null);
+  return {
+    data: filteredUsers,
+    count: filteredUsers.length,
+  };
+};
+
+export const deleteUserFromTeam = async (userIds: string[]) => {
+  const dataQuery = await supabase
+    .from('users')
+    .update({ teamId: null }, { count: 'exact' })
+    .in('id', userIds)
+    .select('*');
+
+  queryResultHandler({
+    query: dataQuery,
+    status: 404,
+  });
+  return {
+    count: dataQuery?.count ?? 0,
+  };
+};
+
 export type UserDBRawTypes = {
   name: string;
   phone: string;

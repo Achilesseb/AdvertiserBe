@@ -34,10 +34,10 @@ type GetAllClientsResponse {
 input AddClientInput {
   name: String!
   contactEmail: String!
-  phone: String!
-  address: String!
-  cui: String!
-  city: String!
+  phone: String
+  address: String
+  cui: String
+  city: String
 }
 
 input EditClientInput {
@@ -49,10 +49,17 @@ input EditClientInput {
   cui: String
   city: String
 }
-
+input ClientsFiltersInput {
+  city: String
+  name: String
+}
+input GetAllClientsInput {
+ pagination: PaginationArguments
+ filters: ClientsFiltersInput
+ }
 type Query {
-  getAllClients: GetAllClientsResponse
-  getClientById(clientId: String!): ClientModel!
+  getAllClients(input: GetAllClientsInput): GetAllClientsResponse
+  getClientById(id: String!): ClientModel!
 }
 
 type Mutation {

@@ -71,16 +71,20 @@ export const usersTypes = `#graphql
         device: DeviceSimpleModel
         team: TeamModel
     }
-
+    type DeleteUsersFromTeamsResponse {
+        count: Int
+    }
     type Query {
         getAllUsers(input: GetAllUsersInput): GetAllUsersReponse
         getAllAvailableUsers(input: GetAllUsersInput): GetAllUsersReponse
+        getAllUnTeamedUsers(input: GetAllUsersInput): GetAllUsersReponse
         getUserById(userId: String): UserAndDeviceResultTypes
         getUserByEmail(userEmail: String): UserModel!
     }
     type Mutation {
         addNewUser(input: AddUserInput!): UserAndDeviceResultTypes
         editUser(input: EditUserInput!): UserAndDeviceResultTypes
+        deleteUserFromTeam(usersIds: [String]!): DeleteUsersFromTeamsResponse
         deleteUser(usersIds: [String]!): Int
     }
 

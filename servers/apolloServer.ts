@@ -35,8 +35,8 @@ export const startApollo = async (httpServer: http.Server) => {
 
   const plugins = [
     ApolloServerPluginLandingPageProductionDefault({
-      // embed: true,
-      // graphRef: 'myGraph@prod',
+      embed: true,
+      graphRef: 'myGraph@prod',
       // includeCookies: true,
     }),
     ApolloServerPluginDrainHttpServer({ httpServer }),

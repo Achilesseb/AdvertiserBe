@@ -26,8 +26,15 @@ export const getAllClients = async ({
   filters,
 }: GetAllEntitiesArguments) => {
   const dataQuery = supabase
-    .from('clientsandpromotions')
+    .from('clientsAndPromotionsView')
     .select('*', { count: 'exact' });
+
+  if (filters) {
+    const filtersObject = Object.entries(filters);
+    filtersObject.forEach(filter =>
+      dataQuery.ilike(filter[0], `%${filter[1]}%`),
+    );
+  }
 
   const modifiedQuery = await addQueryModifiers<ClientModel[]>(dataQuery, {
     pagination,

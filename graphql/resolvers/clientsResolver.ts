@@ -26,8 +26,7 @@ export const clientsResolver = {
       _: unknown,
       { input }: { input: GetAllEntitiesArguments },
     ) => getAllClients(input ?? {}),
-    getClientById: (_: undefined, { clientId }: { clientId: string }) =>
-      getClientById(clientId),
+    getClientById: (_: undefined, { id }: { id: string }) => getClientById(id),
   },
   Mutation: {
     addNewClient: (_: undefined, { input }: { input: ClientInput }) =>
