@@ -97,7 +97,7 @@ type Mutation {
   addNewDevice(input: AddDeviceInput!): DeviceModel
   addDeviceActivity(input: AddDeviceActivityInput!): Boolean
   editDevice(input: EditDeviceInput!): DeviceModel
-  deleteDevice(deviceId: String!): Int
+  deleteDevice(devicesIds: [String!]!): Int
 }
 
 `;

@@ -169,11 +169,11 @@ export const editDevice = async (deviceData: EditDeviceModelInput) => {
   return devicesJoinedTablesMappingFunction(handledResult);
 };
 
-export const deleteDevice = async (deviceId: string) => {
+export const deleteDevice = async (devicesIds: string[]) => {
   const queryData = await supabase
     .from('devices')
     .delete({ count: 'exact' })
-    .eq('id', deviceId);
+    .in('id', devicesIds);
 
   queryResultHandler({ query: queryData });
   return queryData.count;

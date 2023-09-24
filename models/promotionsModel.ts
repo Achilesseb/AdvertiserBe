@@ -47,11 +47,23 @@ export const getAllPromotions = async ({
   pagination,
   filters,
 }: GetAllEntitiesArguments) => {
+  const { clientId, ...restFilters } = filters ?? {};
   const dataQuery = supabase
     .from('promotions')
     .select<string, PromotionModel>('*, clients(*)', {
       count: 'exact',
     });
+
+  if (clientId) {
+    dataQuery.eq('clientId', clientId);
+  }
+
+  if (restFilters) {
+    const filtersObject = Object.entries(restFilters);
+    filtersObject.forEach(filter =>
+      dataQuery.ilike(filter[0], `%${filter[1]}%`),
+    );
+  }
 
   const modifiedQuery = await addQueryModifiers<PromotionModel[]>(dataQuery, {
     pagination,
@@ -68,11 +80,11 @@ export const getAllPromotions = async ({
   };
 };
 
-export const getPromotionById = async (promotionId: string) => {
+export const getPromotionById = async (id: string) => {
   const dataQuery = await supabase
     .from('promotions')
     .select('*, clients(*)')
-    .eq('id', promotionId)
+    .eq('id', id)
     .single();
 
   const handledResults = queryResultHandler({
@@ -123,4 +135,72 @@ export const deletePromotion = async (promotionIds: Array<string>) => {
 
   queryResultHandler({ query: queryData });
   return queryData.count;
+};
+
+export const getPromotionByTeam = async ({
+  pagination,
+  filters,
+}: GetAllEntitiesArguments) => {
+  const { teamId, ...restFilters } = filters ?? {};
+  const dataQuery = supabase
+    .from('teamsPromotionsView')
+    .select<string, TeamsPromotionsView>('*', {
+      count: 'exact',
+    });
+
+  if (teamId) {
+    dataQuery.eq('teamId', teamId);
+  }
+
+  if (restFilters) {
+    const filtersObject = Object.entries(restFilters);
+    filtersObject.forEach(filter =>
+      dataQuery.ilike(filter[0], `%${filter[1]}%`),
+    );
+  }
+
+  const modifiedQuery = await addQueryModifiers<TeamsPromotionsView[]>(
+    dataQuery,
+    {
+      pagination,
+    },
+  );
+
+  const handledResults = queryResultHandler({
+    query: modifiedQuery,
+    status: 404,
+  }) as TeamsPromotionsView[];
+
+  return {
+    data: handledResults,
+    count: modifiedQuery.count,
+  };
+};
+
+export const addNewPromotionToTeam = async (input: TeamsPromotionsInput) => {
+  console.log(input);
+  const dataQuery = await supabase
+    .from('teamPromotions')
+    .upsert(input)
+    .select('*')
+    .single();
+  console.log(dataQuery);
+  return queryResultHandler({
+    query: dataQuery,
+    status: 406,
+  });
+};
+
+export type TeamsPromotionsView = {
+  id: string;
+  title: string;
+  fileName: string;
+  teamId: string;
+  name: string;
+};
+
+export type TeamsPromotionsInput = {
+  promotionId: string;
+  teamId: string;
+  startDate?: string;
 };

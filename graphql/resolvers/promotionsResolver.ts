@@ -1,11 +1,14 @@
 import {
   EditPromotionInput,
   PromotionInput,
+  TeamsPromotionsInput,
   addNewPromotion,
+  addNewPromotionToTeam,
   deletePromotion,
   editPromotion,
   getAllPromotions,
   getPromotionById,
+  getPromotionByTeam,
 } from '../../models/promotionsModel';
 import { createPromotionsClientAssociation } from '../utils/associationsHandlers';
 import { GetAllEntitiesArguments } from '../utils/modifiers';
@@ -16,10 +19,12 @@ export const promotionsResolver = {
       _: unknown,
       { input }: { input: GetAllEntitiesArguments },
     ) => getAllPromotions(input ?? {}),
-    getPromotionById: (
-      _: undefined,
-      { promotionId }: { promotionId: string },
-    ) => getPromotionById(promotionId),
+    getPromotionById: (_: undefined, { id }: { id: string }) =>
+      getPromotionById(id),
+    getPromotionByTeam: (
+      _: unknown,
+      { input }: { input: GetAllEntitiesArguments },
+    ) => getPromotionByTeam(input ?? {}),
   },
   Mutation: {
     addNewPromotion: async (
@@ -33,6 +38,10 @@ export const promotionsResolver = {
 
       return promotionData;
     },
+    addNewPromotionToTeam: async (
+      _: undefined,
+      { input }: { input: TeamsPromotionsInput },
+    ) => addNewPromotionToTeam(input),
     editPromotion: (_: undefined, { input }: { input: EditPromotionInput }) =>
       editPromotion(input),
     deletePromotion: (
