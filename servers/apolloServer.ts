@@ -3,8 +3,8 @@ import { ApolloServerPluginDrainHttpServer } from '@apollo/server/plugin/drainHt
 import { ApolloServerPluginLandingPageProductionDefault } from '@apollo/server/plugin/landingPage/default';
 import { mergeResolvers, mergeTypeDefs } from '@graphql-tools/merge';
 import { makeExecutableSchema } from '@graphql-tools/schema';
-import type express from 'express';
-import type http from 'http';
+import * as express from 'express';
+import * as http from 'http';
 import * as typeDefs from '../graphql/types/index';
 import * as resolvers from '../graphql/resolvers/index';
 import { Maybe } from 'graphql/jsutils/Maybe';
