@@ -3,13 +3,10 @@ import { type Request } from 'express';
 import cors from 'cors';
 import http from 'http';
 import app from './app';
-
-import _ from 'lodash';
 import express from 'express';
 
 import { createExpressContext, startApollo } from './servers/apolloServer';
 import logger from './logger';
-import supabase from './supabase';
 
 export type PDFRequestCustomType = Request & {
   user?: any;
