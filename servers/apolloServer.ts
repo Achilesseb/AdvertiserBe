@@ -3,8 +3,8 @@ import { ApolloServerPluginDrainHttpServer } from '@apollo/server/plugin/drainHt
 import { ApolloServerPluginLandingPageProductionDefault } from '@apollo/server/plugin/landingPage/default';
 import { mergeResolvers, mergeTypeDefs } from '@graphql-tools/merge';
 import { makeExecutableSchema } from '@graphql-tools/schema';
-import type express from 'express';
-import type http from 'http';
+import * as express from 'express';
+import * as http from 'http';
 import * as typeDefs from '../graphql/types/index';
 import * as resolvers from '../graphql/resolvers/index';
 import { Maybe } from 'graphql/jsutils/Maybe';
@@ -12,6 +12,7 @@ import { IResolvers } from '@graphql-tools/utils';
 import supabase from '../supabase';
 import { WebSocketServer } from 'ws';
 import { useServer } from 'graphql-ws/lib/use/ws';
+import { GraphQLError } from 'graphql';
 
 export const startApollo = async (httpServer: http.Server) => {
   let schema = makeExecutableSchema({
@@ -25,10 +26,7 @@ export const startApollo = async (httpServer: http.Server) => {
     ),
   });
   const wsServer = new WebSocketServer({
-    // This is the `httpServer` we created in a previous step.
     server: httpServer,
-    // Pass a different path here if app.use
-    // serves expressMiddleware at a different path
     path: '/subscriptions',
   });
   const serverCleanup = useServer({ schema }, wsServer);
@@ -37,7 +35,6 @@ export const startApollo = async (httpServer: http.Server) => {
     ApolloServerPluginLandingPageProductionDefault({
       embed: true,
       graphRef: 'myGraph@prod',
-      // includeCookies: true,
     }),
     ApolloServerPluginDrainHttpServer({ httpServer }),
     {
@@ -68,25 +65,23 @@ export const createExpressContext = async ({
   req: express.Request;
   res: express.Response;
 }) => {
-  const token = req.headers.authorization;
-  const localeData = {
-    res,
-    locale: (req.headers.language as string | undefined) ?? 'en',
-  };
-  let userData;
-
-  if (!token) {
-    return localeData;
-  }
-
   try {
-    userData = await supabase.auth.getUser(token);
-  } catch (e) {
-    return localeData;
-  }
+    const token = req.headers?.authorization;
 
-  return {
-    data: userData,
-    ...localeData,
-  };
+    const tokenWithoutBearer = token?.substring('Bearer '.length);
+
+    const { data, error } = await supabase.auth.getUser(tokenWithoutBearer);
+
+    if (error) throw new Error('No user found');
+
+    return {
+      data,
+    };
+  } catch (e) {
+    throw new GraphQLError('Unauthorized', {
+      extensions: {
+        status: 401,
+      },
+    });
+  }
 };

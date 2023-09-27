@@ -53,22 +53,26 @@ export const authenticationRespolver = {
       { email, password }: { email: string; password: string },
     ) => {
       try {
-        const response = await supabase.auth.signUp({
+        const { data, error } = await supabase.auth.admin.createUser({
           email,
           password,
+          user_metadata: { role: 'admin' },
+          email_confirm: true,
         });
-        if (response.error) {
+        if (error) {
           return generateQueryResultError({
             messageOverride: ERROR_SIGNUP_FAILED,
-            error: response.error as unknown as PostgrestError,
+            error: error as unknown as PostgrestError,
             statusOverride: 409,
           });
         }
-        const { user }: UserMetadata = response;
+
+        const { user }: UserMetadata = data;
+
         return {
           user: {
-            id: user.id,
-            email: user.email,
+            ...user,
+            role: user.user_metadata.role.role,
           },
         };
       } catch (error) {

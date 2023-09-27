@@ -178,17 +178,31 @@ export const getPromotionByTeam = async ({
 };
 
 export const addNewPromotionToTeam = async (input: TeamsPromotionsInput) => {
-  console.log(input);
   const dataQuery = await supabase
     .from('teamPromotions')
     .upsert(input)
     .select('*')
     .single();
-  console.log(dataQuery);
   return queryResultHandler({
     query: dataQuery,
     status: 406,
   });
+};
+
+export const deletePromoFromTeam = async (promotionsIds: string[]) => {
+  const dataQuery = await supabase
+    .from('teamPromotions')
+    .delete()
+    .in('promotionId', promotionsIds)
+    .select('*');
+
+  queryResultHandler({
+    query: dataQuery,
+    status: 404,
+  });
+  return {
+    count: dataQuery?.count ?? 0,
+  };
 };
 
 export type TeamsPromotionsView = {

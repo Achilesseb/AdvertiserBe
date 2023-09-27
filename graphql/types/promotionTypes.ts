@@ -74,7 +74,9 @@ export const promotionTypes = `#graphql
         teamId: String!
         startingDate: String
     }
-    
+    type DeletePromotionsFromTeamsResponse {
+        count: Int
+    }
     type Query {
         getAllPromotions(input: GetAllPromotionsInput): GetAllPromotionsReponse,
         getPromotionById(id: String!): PromotionModel! 
@@ -85,6 +87,7 @@ export const promotionTypes = `#graphql
         addNewPromotion(input: AddPromotionInput): PromotionModel
         addNewPromotionToTeam(input: AddPromotionToTeamInput): PromotionModel
         editPromotion(input: EditPromotionInput): PromotionModel
+        deletePromotionsFromTeam(promotionIds: [String]!): DeletePromotionsFromTeamsResponse
         deletePromotion(promotionIds: [String]!): Int
     }
 `;

@@ -1,7 +1,7 @@
 import supabase from '../supabase';
 import { UserInput, EditUserInput } from '../graphql/resolvers/usersResolver';
 import { queryResultHandler } from '../graphql/utils/errorHandlers';
-import crypto from 'crypto-js';
+import * as crypto from 'crypto-js';
 import {
   GetAllEntitiesArguments,
   addQueryModifiers,

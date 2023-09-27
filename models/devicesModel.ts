@@ -10,7 +10,6 @@ import dayjs from 'dayjs';
 import utc from 'dayjs/plugin/utc';
 import tz from 'dayjs/plugin/timezone';
 import { TeamModel } from './teamsModel';
-import { createDeviceUserAssociation } from '../graphql/utils/associationsHandlers';
 import _ from 'lodash';
 
 dayjs.extend(utc);
@@ -119,6 +118,21 @@ export const getDeviceById = async (deviceId: string) => {
   return devicesMappingFunctions(handledResult);
 };
 
+export const getDeviceByDeviceUniqueId = async (deviceUniqueId: string) => {
+  const dataQuery = await supabase
+    .from('devices')
+    .select('*, users(*)')
+    .eq('identifier', deviceUniqueId)
+    .single();
+
+  const handledResult = queryResultHandler({
+    query: dataQuery,
+    status: 404,
+  }) as DeviceModelReturnType;
+
+  return devicesMappingFunctions(handledResult);
+};
+
 export const addNewDevice = async (deviceData: AddDeviceModelInput) => {
   const dataQuery = await supabase
     .from('devices')
@@ -167,11 +181,13 @@ export const deleteDevice = async (devicesIds: string[]) => {
 
 export const addDeviceActivity = async (input: AddDeviceActivityInput) => {
   const queryData = await supabase.from('deviceActivityData').insert({
+    userId: input.userId,
     deviceId: input.deviceId,
     latitude: input.latitude,
     longitude: input.longitude,
+    distanceDriven: input.distanceDriven,
     broadcastingDay: dayjs.tz(
-      input?.broadcastingDay ?? dayjs(),
+      input.broadcastingDay ? dayjs(Number(input.broadcastingDay)) : dayjs(),
       'Europe/Bucharest',
     ),
   });
@@ -195,6 +211,44 @@ export const getDevicePromotions = async (deviceId: string) => {
   return {
     data: handledResult,
     count: dataQuery.count,
+  };
+};
+
+export const getDevicesLivePosition = async ({
+  filters,
+}: GetAllEntitiesArguments) => {
+  const { date, ...restFilters } = filters;
+  const dataQuery = supabase.rpc(
+    'GetLastDeviceData',
+    {
+      date,
+    },
+    { count: 'exact' },
+  );
+
+  if (restFilters) {
+    const filtersObject = Object.entries(restFilters);
+    filtersObject.forEach(filter =>
+      dataQuery.ilike(filter[0], `%${filter[1]}%`),
+    );
+  }
+  const modifiedQuery = await addQueryModifiers<DeviceActivityReturnType[]>(
+    dataQuery,
+    {
+      pagination: {
+        entitiesPerPage: 1000,
+      },
+    },
+  );
+
+  const handledResults = queryResultHandler({
+    query: modifiedQuery,
+    status: 404,
+  }) as DeviceActivityReturnType[];
+
+  return {
+    data: handledResults,
+    count: modifiedQuery.count,
   };
 };
 
@@ -240,8 +294,28 @@ export type DeviceModelJoinedReturnType = DeviceModel & {
   users: Array<UserModel & { teams: TeamModel }>;
 };
 export type AddDeviceActivityInput = {
+  userId: string;
   deviceId: string;
   latitude: number;
   longitude: number;
   broadcastingDay: string;
+  distanceDriven: number;
+};
+
+export type DeviceActivityReturnType = {
+  deviceId: string;
+  lastTimeCreated: string;
+  latitude: number;
+  longitude: number;
+  name: string;
+  teamName: string;
+};
+
+export type DeviceActivityReturnType = {
+  deviceId: string;
+  lastTimeCreated: string;
+  latitude: number;
+  longitude: number;
+  name: string;
+  teamName: string;
 };

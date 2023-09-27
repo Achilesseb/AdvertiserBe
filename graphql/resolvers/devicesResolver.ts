@@ -3,7 +3,6 @@ import {
   AddDeviceActivityInput,
   AddDeviceModelInput,
   DBDeviceModel,
-  DeviceModel,
   EditDeviceModelInput,
   addDeviceActivity,
   addNewDevice,
@@ -13,6 +12,8 @@ import {
   getAllDevices,
   getDeviceById,
   getDevicePromotions,
+  getDeviceByDeviceUniqueId,
+  getDevicesLivePosition,
 } from '../../models/devicesModel';
 import supabase from '../../supabase';
 import { doesDeviceExists } from '../utils/checkValuesHandlers';
@@ -69,7 +70,10 @@ export const devicesResolver = {
     ) => getAllAvailableDevices(input ?? {}),
     getDeviceById: (_: undefined, { deviceId }: { deviceId: string }) =>
       getDeviceById(deviceId),
-
+    getDeviceByDeviceUniqueId: (
+      _: undefined,
+      { identifier }: { identifier: string },
+    ) => getDeviceByDeviceUniqueId(identifier),
     getDevicePromotions: async (
       _: undefined,
       { deviceId }: { deviceId: string },
@@ -88,6 +92,10 @@ export const devicesResolver = {
 
       return devicePromotionsByDriver;
     },
+    getDevicesLivePosition: async (
+      _: undefined,
+      { input }: { input: GetAllEntitiesArguments },
+    ) => getDevicesLivePosition(input),
   },
   Mutation: {
     addNewDevice: async (
@@ -128,7 +136,6 @@ export const devicesResolver = {
       { input }: { input: EditDeviceModelInput },
     ) => {
       const data = await editDevice(input);
-
       const teamId = data.driver.teamId;
       pubsub.publish('DEVICE_STATUS_CHANGED', {
         deviceStatusChanged: input.deviceId,
