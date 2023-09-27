@@ -11,9 +11,9 @@ import {
   getAllAvailableDevices,
   getAllDevices,
   getDeviceById,
+  getDevicesLivePosition,
   getDevicePromotions,
   getDeviceByDeviceUniqueId,
-  getDevicesLivePosition,
 } from '../../models/devicesModel';
 import supabase from '../../supabase';
 import { doesDeviceExists } from '../utils/checkValuesHandlers';

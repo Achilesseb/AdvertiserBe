@@ -43,13 +43,15 @@ export const devicesTypes = `#graphql
     inUse: Boolean
     identifier: String
   }
-
   input AddDeviceActivityInput{
+    userId: String!
     deviceId: String!
     latitude: Float!
     longitude: Float!
+    distanceDriven: Float!
     broadcastingDay: String
-  }
+}
+
 
   type DevicePromotionModel {
     driverId: String
