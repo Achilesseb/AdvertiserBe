@@ -319,3 +319,12 @@ export type DeviceActivityReturnType = {
   name: string;
   teamName: string;
 };
+
+export type DeviceActivityReturnType = {
+  deviceId: string;
+  lastTimeCreated: string;
+  latitude: number;
+  longitude: number;
+  name: string;
+  teamName: string;
+};
