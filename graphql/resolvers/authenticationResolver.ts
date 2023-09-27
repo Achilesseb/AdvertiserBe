@@ -56,7 +56,7 @@ export const authenticationRespolver = {
         const { data, error } = await supabase.auth.admin.createUser({
           email,
           password,
-          user_metadata: { role: 'admin' },
+          user_metadata: { role: 'driver' },
           email_confirm: true,
         });
         if (error) {

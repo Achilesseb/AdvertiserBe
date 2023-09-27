@@ -12,7 +12,6 @@ import {
   getUserByEmail,
   getUserById,
 } from '../../models/usersModel';
-import { createUserRoleAssociation } from '../utils/associationsHandlers';
 import { sendCreatedUserEmail } from '../../utils/emailHandlers';
 
 export type UserInput = {
