@@ -1,3 +1,4 @@
+import { reportsResolver } from './reportsResolver';
 import { deviationConstantsResolver } from './deviationConstantResolver';
 import { teamsResolver } from './teamsResolver';
 import { devicesResolver } from './devicesResolver';
@@ -15,4 +16,5 @@ export {
   devicesResolver,
   teamsResolver,
   deviationConstantsResolver,
+  reportsResolver,
 };

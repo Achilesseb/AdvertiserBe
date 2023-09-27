@@ -2,8 +2,6 @@ import Mailjet, { type Client } from 'node-mailjet';
 
 import { INVALID_EMAIL_CONFIG } from '../constants/queryErrorMessages';
 
-// import { INVALID_EMAIL_CONFIG } from '../../constants/responseMessages';
-
 type EmailData = {
   recipient: string;
   subject: string;

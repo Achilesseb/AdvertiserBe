@@ -8,14 +8,16 @@ import { getAllConstants } from '../../models/deviationConstantsModel';
 import { GetAllEntitiesArguments } from '../utils/modifiers';
 
 export type ConstantInput = {
-  float: number;
+  constant: number;
   identifier: string;
+  inUse?: boolean;
 };
 
 export type EditConstantInput = {
   id: string;
-  float: number;
+  constant: number;
   identifier: string;
+  inUse: boolean;
 };
 
 export const deviationConstantsResolver = {

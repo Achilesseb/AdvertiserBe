@@ -1,3 +1,4 @@
+import { reportsTypes } from './reportsTypes';
 import { deviationTypes } from './deviationConstantTypes';
 import { generalTypes } from './generalTypes';
 import { teamsTypes } from './teamsTypes';
@@ -16,4 +17,5 @@ export {
   devicesTypes,
   teamsTypes,
   deviationTypes,
+  reportsTypes,
 };

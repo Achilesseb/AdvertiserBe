@@ -214,6 +214,44 @@ export const getDevicePromotions = async (deviceId: string) => {
   };
 };
 
+export const getDevicesLivePosition = async ({
+  filters,
+}: GetAllEntitiesArguments) => {
+  const { date, ...restFilters } = filters;
+  const dataQuery = supabase.rpc(
+    'GetLastDeviceData',
+    {
+      date,
+    },
+    { count: 'exact' },
+  );
+
+  if (restFilters) {
+    const filtersObject = Object.entries(restFilters);
+    filtersObject.forEach(filter =>
+      dataQuery.ilike(filter[0], `%${filter[1]}%`),
+    );
+  }
+  const modifiedQuery = await addQueryModifiers<DeviceActivityReturnType[]>(
+    dataQuery,
+    {
+      pagination: {
+        entitiesPerPage: 1000,
+      },
+    },
+  );
+
+  const handledResults = queryResultHandler({
+    query: modifiedQuery,
+    status: 404,
+  }) as DeviceActivityReturnType[];
+
+  return {
+    data: handledResults,
+    count: modifiedQuery.count,
+  };
+};
+
 export type DeviceSimpleModel = {
   id: string;
   createAt: string;
@@ -262,4 +300,13 @@ export type AddDeviceActivityInput = {
   longitude: number;
   broadcastingDay: string;
   distanceDriven: number;
+};
+
+export type DeviceActivityReturnType = {
+  deviceId: string;
+  lastTimeCreated: string;
+  latitude: number;
+  longitude: number;
+  name: string;
+  teamName: string;
 };

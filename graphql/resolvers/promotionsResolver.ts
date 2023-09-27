@@ -4,6 +4,7 @@ import {
   TeamsPromotionsInput,
   addNewPromotion,
   addNewPromotionToTeam,
+  deletePromoFromTeam,
   deletePromotion,
   editPromotion,
   getAllPromotions,
@@ -48,5 +49,9 @@ export const promotionsResolver = {
       _: undefined,
       { promotionIds }: { promotionIds: Array<string> },
     ) => deletePromotion(promotionIds),
+    deletePromotionsFromTeam: (
+      _: undefined,
+      { promotionIds }: { promotionIds: Array<string> },
+    ) => deletePromoFromTeam(promotionIds),
   },
 };

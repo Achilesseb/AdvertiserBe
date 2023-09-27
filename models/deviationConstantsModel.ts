@@ -1,11 +1,9 @@
 import {
   GetAllEntitiesArguments,
-  PaginationArguments,
   addQueryModifiers,
 } from '../graphql/utils/modifiers';
 import { queryResultHandler } from '../graphql/utils/errorHandlers';
 import supabase from '../supabase';
-import { EditTeamInput, TeamInput } from '../graphql/resolvers/teamsResolver';
 import { ConstantInput } from '../graphql/resolvers/deviationConstantResolver';
 
 export type ConstantsModel = {
@@ -70,14 +68,31 @@ export const addNewConstant = async (input: ConstantInput) => {
     status: 406,
   }) as ConstantsModel;
 
+  if (input?.inUse) {
+    await supabase
+      .from('deviationConstants')
+      .update({ inUse: false })
+      .neq('id', handledResults.id);
+  }
+
   return handledResults;
 };
 
-export const editConstant = async (input: EditTeamInput) => {
-  const { id, ...editInputs } = input;
+export const editConstant = async (input: EditConstantInput) => {
+  const { id, inUse, ...editInputs } = input;
+  if (inUse) {
+    await supabase
+      .from('deviationConstants')
+      .update({ inUse: false })
+      .neq('id', id);
+  }
+
   const dataQuery = await supabase
     .from('deviationConstants')
-    .update(editInputs)
+    .update({
+      inUse,
+      ...editInputs,
+    })
     .eq('id', id)
     .select('*')
     .single();
@@ -98,4 +113,22 @@ export const deleteConstants = async (constantsIds: Array<string>) => {
 
   queryResultHandler({ query: queryData });
   return queryData.count;
+};
+
+export const getInUseConstant = async () => {
+  const queryData = await supabase
+    .from('deviationConstants')
+    .select('*')
+    .eq('inUse', true)
+    .single();
+
+  queryResultHandler({ query: queryData });
+  return queryData.data;
+};
+
+export type EditConstantInput = {
+  id: string;
+  inUse?: boolean;
+  identifier: string;
+  constant: number;
 };

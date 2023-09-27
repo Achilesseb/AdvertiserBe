@@ -1,88 +1,113 @@
 export const devicesTypes = `#graphql
 
-type DeviceSimpleModel {
-  id: String!
-  createdAt: String!
-  system: String!
-  location: String!
-  inUse: Boolean!
-  identifier: String
+  type DeviceSimpleModel {
+    id: String!
+    createdAt: String!
+    system: String!
+    location: String!
+    inUse: Boolean!
+    identifier: String
+  }
+
+  type DeviceActivitySimpleModel {
+    deviceId: String
+    lastTimeCreated: String
+    longitude: String
+    latitude: String
+    name: String
+    teamName: String
+  }
+
+  type DeviceModel {
+    id: String!
+    createdAt: String!
+    system: String!
+    location: String!
+    inUse: Boolean!
+    driver: UserModel 
+    identifier: String
+  }
+
+  input AddDeviceInput {
+    system: String!
+    location: String!
+    inUse: Boolean!
+    driverId: String 
+    identifier: String!
+  }
+
+  input EditDeviceInput {
+    deviceId:String!
+    system: String
+    location: String
+    inUse: Boolean
+    identifier: String
+  }
+  input AddDeviceActivityInput{
+    userId: String!
+    deviceId: String!
+    latitude: Float!
+    longitude: Float!
+    distanceDriven: Float!
+    broadcastingDay: String
 }
 
-type DeviceModel {
-  id: String!
-  createdAt: String!
-  system: String!
-  location: String!
-  inUse: Boolean!
-  driver: UserModel 
-  identifier: String
-}
 
-input AddDeviceInput {
-  system: String!
-  location: String!
-  inUse: Boolean!
-  driverId: String 
-  identifier: String!
-}
+  type DevicePromotionModel {
+    driverId: String
+    teamId:String
+    fileName: String
+    title: String
+    duration: Int
+    promotionId: String
+    clientId: String,
+    clientName: String,
+    clientPage: String
+  }
 
-input EditDeviceInput {
-  deviceId:String!
-  system: String
-  location: String
-  inUse: Boolean
-  identifier: String
-}
+  type GetDevicePromotionsResponse {
+    data: [DevicePromotionModel]!
+    count: Int
+  }
 
-input AddDeviceActivityInput{
-  userId: String!
-  deviceId: String!
-  latitude: Float!
-  longitude: Float!
-  distanceDriven: Float!
-  broadcastingDay: String
-}
+  type GetAllDevicesResponse {
+    data: [DeviceModel]!
+    count: Int!
+  }
 
-type DevicePromotionModel {
-  driverId: String
-  teamId:String
-  fileName: String
-  title: String
-  duration: Int
-  promotionId: String
-  clientId: String,
-  clientName: String,
-  clientPage: String
-}
+  type GetAllDevicesActivityResponse {
+    data: [DeviceActivitySimpleModel]!
+    count: Int!
+  }
 
-type GetDevicePromotionsResponse {
-  data: [DevicePromotionModel]!
-  count: Int
-}
+  input DeviceFilter {
+    location: String
+    identifier: String
+  }
 
-type GetAllDevicesResponse {
-  data: [DeviceModel]!
-  count: Int!
-}
+  input GetAllDevicesInput {
+  pagination: PaginationArguments
+  filters: DeviceFilter
+  }
 
-input DeviceFilter {
-  location: String
-  identifier: String
-}
+  type DeviceSubsciptionReturnType {
+    deviceId: String
+    groupId: String
+  }
+  type Subscription {
+    deviceStatusChanged(groupId: String!): DeviceSubsciptionReturnType
+  }
 
- input GetAllDevicesInput {
- pagination: PaginationArguments
- filters: DeviceFilter
- }
+  input GetDeviceLiveActivityFilters{
+  date: String
+  name: String
+  teamName: String
+  }
 
-type DeviceSubsciptionReturnType {
-  deviceId: String,
-  groupId: String,
-}
- type Subscription {
-  deviceStatusChanged(groupId: String!): DeviceSubsciptionReturnType
-}
+  input GetDeviceLiveActivity {
+    filters: GetDeviceLiveActivityFilters
+  }
+
 
 type Query {
 
@@ -91,6 +116,7 @@ type Query {
   getDeviceById(deviceId: String!): DeviceModel
   getDeviceByDeviceUniqueId(identifier: String!): DeviceModel
   getDevicePromotions(deviceId: String!): GetDevicePromotionsResponse
+  getDevicesLivePosition(input: GetDeviceLiveActivity): GetAllDevicesActivityResponse
 }
 
 type Mutation {

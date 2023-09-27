@@ -11,7 +11,9 @@ import {
   getAllAvailableDevices,
   getAllDevices,
   getDeviceById,
-  getDevicePromotions, getDeviceByDeviceUniqueId,
+  getDevicesLivePosition,
+  getDevicePromotions,
+  getDeviceByDeviceUniqueId,
 } from '../../models/devicesModel';
 import supabase from '../../supabase';
 import { doesDeviceExists } from '../utils/checkValuesHandlers';
@@ -68,8 +70,10 @@ export const devicesResolver = {
     ) => getAllAvailableDevices(input ?? {}),
     getDeviceById: (_: undefined, { deviceId }: { deviceId: string }) =>
       getDeviceById(deviceId),
-    getDeviceByDeviceUniqueId: (_: undefined, { identifier }: { identifier: string }) =>
-      getDeviceByDeviceUniqueId(identifier),
+    getDeviceByDeviceUniqueId: (
+      _: undefined,
+      { identifier }: { identifier: string },
+    ) => getDeviceByDeviceUniqueId(identifier),
     getDevicePromotions: async (
       _: undefined,
       { deviceId }: { deviceId: string },
@@ -88,6 +92,10 @@ export const devicesResolver = {
 
       return devicePromotionsByDriver;
     },
+    getDevicesLivePosition: async (
+      _: undefined,
+      { input }: { input: GetAllEntitiesArguments },
+    ) => getDevicesLivePosition(input),
   },
   Mutation: {
     addNewDevice: async (
