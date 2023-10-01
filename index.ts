@@ -26,6 +26,10 @@ const corsDomains = process.env.CORS_DOMAINS?.split(',');
 
   const index = await startApollo(httpServer);
 
+  app.use('/', (req, res) => {
+    res.send('Hello World!');
+  });
+
   app.use(
     '/graphql',
     expressMiddleware(index, {
