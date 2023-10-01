@@ -1,12 +1,12 @@
 import { expressMiddleware } from '@apollo/server/express4';
 import { type Request } from 'express';
-import * as http from 'http';
+import http from 'http';
 import app from './app';
-import * as express from 'express';
+import express from 'express';
 
 import { createExpressContext, startApollo } from './servers/apolloServer';
 import logger from './logger';
-import * as cors from 'cors';
+import cors from 'cors';
 
 export type PDFRequestCustomType = Request & {
   user?: any;
@@ -36,6 +36,6 @@ const corsDomains = process.env.CORS_DOMAINS?.split(',');
   const port = process.env.PORT;
 
   httpServer.listen(port, () => {
-    logger.info(`Advertiser app listening on port ${port}`);
+    logger.info(`Advertiser app listening on port ${port} -> new new`);
   });
 })();
