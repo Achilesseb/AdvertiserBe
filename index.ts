@@ -1,12 +1,12 @@
 import { expressMiddleware } from '@apollo/server/express4';
 import { type Request } from 'express';
-import cors from 'cors';
-import http from 'http';
+import * as http from 'http';
 import app from './app';
-import express from 'express';
+import * as express from 'express';
 
 import { createExpressContext, startApollo } from './servers/apolloServer';
 import logger from './logger';
+import * as cors from 'cors';
 
 export type PDFRequestCustomType = Request & {
   user?: any;
@@ -30,10 +30,9 @@ const corsDomains = process.env.CORS_DOMAINS?.split(',');
   app.use(
     '/graphql',
     expressMiddleware(index, {
-      // context: createExpressContext,
+      context: createExpressContext,
     }),
   );
-
   const port = process.env.PORT;
 
   httpServer.listen(port, () => {
