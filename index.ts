@@ -13,13 +13,12 @@ export type PDFRequestCustomType = Request & {
 };
 
 const corsDomains = process.env.CORS_DOMAINS?.split(',');
-
 (async () => {
   app.use(
     express.json(),
     express.urlencoded({ extended: true }),
     cors({
-      origin: corsDomains,
+      origin: true,
       credentials: true,
     }),
   );
