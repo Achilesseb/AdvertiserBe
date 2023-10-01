@@ -9,3 +9,6 @@
 7. Run `docker push 462404724564.dkr.ecr.eu-central-1.amazonaws.com/advertiser-be:latest`
 8. Wait ~5 minutes and the new version will be deployed
 9. Profit
+
+### New aws setup
+Follow this video if you need to setup a new aws account: https://www.youtube.com/watch?v=TsVO14-lqp0
