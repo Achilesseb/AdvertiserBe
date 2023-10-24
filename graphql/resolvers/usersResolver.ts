@@ -13,6 +13,7 @@ import {
   getUserById,
 } from '../../models/usersModel';
 import { sendCreatedUserEmail } from '../../utils/emailHandlers';
+import { sendCreatedUserEmailViaAws } from '../../aws/sendSesEmail';
 
 export type UserInput = {
   name: string;
@@ -53,7 +54,7 @@ export const usersResolver = {
     addNewUser: async (_: undefined, { input }: { input: UserInput }) => {
       const userData = await addNewUser(input);
 
-      await sendCreatedUserEmail({
+      await sendCreatedUserEmailViaAws({
         recipient: userData.email,
         emailVars: { token: userData.registrationCode },
       });
