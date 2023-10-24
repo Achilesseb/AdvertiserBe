@@ -1,5 +1,5 @@
 import logger from '../logger';
-import sendEmail from './emailService';
+// import sendEmail from './emailService';
 
 type ResetCodeEmailVars = {
   token: string | number;
@@ -28,7 +28,7 @@ const sendMailTemplate = async (
       body: `${body}: ${emailArgs.emailVars?.token}`,
     };
 
-    return await sendEmail(emailParams);
+    // return await sendEmail(emailParams);
   } catch (error) {
     logger.error(error);
     return 400;
