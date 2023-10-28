@@ -58,6 +58,7 @@ export const usersTypes = `#graphql
 }
 
     type UserAndDeviceResultTypes {
+        id: String
         name: String
         phone: String
         email: String
@@ -66,7 +67,6 @@ export const usersTypes = `#graphql
         address: String
         car: String
         registrationPlate: String
-        driverId: String
         device: DeviceSimpleModel
         team: TeamModel
     }

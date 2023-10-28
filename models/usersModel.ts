@@ -273,6 +273,7 @@ export const deleteUserFromTeam = async (userIds: string[]) => {
 };
 
 export type UserDBRawTypes = {
+  id: string;
   name: string;
   phone: string;
   email: string;
@@ -281,7 +282,6 @@ export type UserDBRawTypes = {
   address: string;
   carDetails: string;
   registrationPlate: string;
-  driverId: string;
 };
 
 export type UserAndDeviceDBRawTypes = UserDBRawTypes & {
