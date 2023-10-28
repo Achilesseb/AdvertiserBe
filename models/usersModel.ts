@@ -1,7 +1,8 @@
 import supabase from '../supabase';
 import { UserInput, EditUserInput } from '../graphql/resolvers/usersResolver';
 import { queryResultHandler } from '../graphql/utils/errorHandlers';
-import * as crypto from 'crypto-js';
+import * as sha256 from 'crypto-js/sha256';
+
 import {
   GetAllEntitiesArguments,
   addQueryModifiers,
@@ -132,10 +133,10 @@ export const getUserByEmail = async (userEmail: string) => {
 };
 
 export const addNewUser = async (input: UserInput) => {
-  const registrationCode = crypto
-    .SHA256(input?.email, { blockSize: 5 })
+  const registrationCode = sha256(input?.email, { blockSize: 5 })
     .toString()
     .slice(0, 6);
+
   const dataQuery = await supabase
     .from('users')
     .upsert({
