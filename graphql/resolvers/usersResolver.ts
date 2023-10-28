@@ -12,7 +12,7 @@ import {
   getUserByEmail,
   getUserById,
 } from '../../models/usersModel';
-import { sendCreatedUserEmail } from '../../utils/emailHandlers';
+import { sendCreatedUserEmail, sendEmail } from '../../utils/emailHandlers';
 
 export type UserInput = {
   name: string;
@@ -44,8 +44,11 @@ export const usersResolver = {
       _: unknown,
       { input }: { input: GetAllEntitiesArguments },
     ) => getAllUnTeamedUsers(input ?? {}),
-    getUserById: (_: undefined, { userId }: { userId: string }) =>
-      getUserById(userId),
+    getUserById: async (_: undefined, { userId }: { userId: string }) => {
+      // await sendEmail({});
+      // console.log('sent email');
+      return await getUserById(userId);
+    },
     getUserByEmail: (_: undefined, { userEmail }: { userEmail: string }) =>
       getUserByEmail(userEmail),
   },
