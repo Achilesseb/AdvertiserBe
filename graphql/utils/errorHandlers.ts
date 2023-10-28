@@ -45,8 +45,10 @@ export const generateQueryResultError = ({
   messageOverride?: string;
   error?: PostgrestError;
   statusOverride?: number;
-}) =>
-  new GraphQLError(messageOverride ?? error?.message ?? '', {
+}) => {
+  console.log('Something went wrong trying to access data in the database..');
+
+  return new GraphQLError(messageOverride ?? error?.message ?? '', {
     extensions: {
       code: undefined,
       http: {
@@ -54,6 +56,7 @@ export const generateQueryResultError = ({
       },
     },
   });
+};
 
 export const queryResultHandler = <T>({
   query,

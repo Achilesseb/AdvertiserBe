@@ -17,6 +17,7 @@ export const authenticationRespolver = {
       _: unknown,
       { email, password }: { email: string; password: string },
     ) => {
+      console.log('Logging in user..');
       try {
         const response = await supabase.auth.signInWithPassword({
           email,
@@ -29,6 +30,7 @@ export const authenticationRespolver = {
             statusOverride: 401,
           });
         }
+        console.log('Supabase logIn succesfull..');
         const user = response.data.user;
         const token = response.data.session?.access_token;
 
@@ -52,6 +54,8 @@ export const authenticationRespolver = {
       _: unknown,
       { email, password }: { email: string; password: string },
     ) => {
+      console.log('Creating an user as administrator..');
+
       try {
         const { data, error } = await supabase.auth.admin.createUser({
           email,
@@ -68,6 +72,8 @@ export const authenticationRespolver = {
         }
 
         const { user }: UserMetadata = data;
+
+        console.log('Creating user successfully..');
 
         return {
           user: {

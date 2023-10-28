@@ -11,6 +11,7 @@ export const confirmUserRegistration = async ({
   password,
   registrationCode,
 }: UserRegistrationInputTypes) => {
+  console.log('Started confirming user registration..');
   try {
     const userDataQuery = await supabase
       .from('users')
@@ -19,6 +20,8 @@ export const confirmUserRegistration = async ({
       .single();
 
     const userData = queryResultHandler({ query: userDataQuery }) as UserModel;
+
+    console.log('User found in database..');
 
     if (userData.registrationCode !== registrationCode)
       return generateQueryResultError({
@@ -32,6 +35,8 @@ export const confirmUserRegistration = async ({
     });
 
     if (error) throw error;
+
+    console.log('Supabase signUp successfull..');
 
     return true;
   } catch (err) {

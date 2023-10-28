@@ -9,6 +9,7 @@ import {
 } from '../graphql/utils/modifiers';
 import { DeviceModel } from './devicesModel';
 import { TeamModel } from './teamsModel';
+import { generateRegistrationCode } from '../utils/codeGenerators';
 
 export enum Roles {
   driver = 'driver',
@@ -52,6 +53,9 @@ export type UserModel = {
 
 const userDeviceTeamsMappingFunc = (result: UserAndDeviceTeamsDBRawTypes) => {
   const { devices, teams, ...rest } = result;
+
+  console.log('Mapping user/device/team data..');
+
   return {
     ...rest,
     device: devices,
@@ -61,6 +65,9 @@ const userDeviceTeamsMappingFunc = (result: UserAndDeviceTeamsDBRawTypes) => {
 
 const userAndDeviceMappingFunc = (result: UserAndDeviceDBRawTypes) => {
   const { devices, ...rest } = result;
+
+  console.log('Mapping user/device data..');
+
   return {
     ...rest,
     device: devices,
@@ -71,6 +78,8 @@ export const getAllUsers = async ({
   pagination,
   filters,
 }: GetAllEntitiesArguments) => {
+  console.log('Getting all users..');
+
   const dataQuery = supabase
     .from('users')
     .select('*, teams(name)', { count: 'exact' });
@@ -93,6 +102,8 @@ export const getAllUsers = async ({
     status: 404,
   }) as UserModelDBResultType[];
 
+  console.log('Users data retrieved successfully..');
+
   return {
     data: handledResults.map(result => ({
       ...result,
@@ -103,6 +114,8 @@ export const getAllUsers = async ({
 };
 
 export const getUserById = async (userId: string) => {
+  console.log('Getting user by id..');
+
   const dataQuery = await supabase
     .from('users')
     .select('*, devices(*), teams(*)')
@@ -114,10 +127,14 @@ export const getUserById = async (userId: string) => {
     status: 404,
   }) as UserAndDeviceTeamsDBRawTypes;
 
+  console.log('User data retrieved successfully..');
+
   return userDeviceTeamsMappingFunc(handledResults);
 };
 
 export const getUserByEmail = async (userEmail: string) => {
+  console.log('Getting user by email..');
+
   const dataQuery = await supabase
     .from('users')
     .select('*')
@@ -129,11 +146,15 @@ export const getUserByEmail = async (userEmail: string) => {
     status: 404,
   });
 
+  console.log('User data retrieved successfully..');
+
   return handledResults;
 };
 
 export const addNewUser = async (input: UserInput) => {
-  const registrationCode = crypto.SHA256(input?.email).toString().slice(0, 6);
+  const registrationCode = generateRegistrationCode(input.email);
+
+  console.log('Adding new user..');
 
   const dataQuery = await supabase
     .from('users')
@@ -149,10 +170,14 @@ export const addNewUser = async (input: UserInput) => {
     status: 406,
   });
 
+  console.log('Added new user successfully..');
+
   return userAndDeviceMappingFunc(handledResult) as UserAndDeviceAddResultTypes;
 };
 
 export const editUser = async (input: EditUserInput) => {
+  console.log('Updating user..');
+
   const { userId: id, ...editInputs } = input;
   const dataQuery = await supabase
     .from('users')
@@ -160,6 +185,8 @@ export const editUser = async (input: EditUserInput) => {
     .eq('id', id)
     .select('*, devices(*), teams(*)')
     .single();
+
+  console.log('Users data updated successfully..');
 
   if (!dataQuery.data && !dataQuery.error) {
     const userDataQuery = await supabase
@@ -173,6 +200,8 @@ export const editUser = async (input: EditUserInput) => {
       status: 404,
     });
 
+    console.log('Unchanged user data retrieved successfully..');
+
     return userDeviceTeamsMappingFunc(
       handledUserResults,
     ) as UserAndDeviceEditResultTypes;
@@ -182,15 +211,21 @@ export const editUser = async (input: EditUserInput) => {
     status: 404,
   });
 
+  console.log('Users data retrieved successfully..');
+
   return userAndDeviceMappingFunc(
     handledResults,
   ) as UserAndDeviceEditResultTypes;
 };
 
 export const deleteUser = async (usersIds: Array<string>) => {
+  console.log('Deleting users..');
+
   const queryData = await supabase.from('users').delete().in('id', usersIds);
 
   queryResultHandler({ query: queryData });
+
+  console.log('Users deleted successfully..');
 
   return queryData.count;
 };
@@ -199,6 +234,8 @@ export const getAllAvailableUsers = async ({
   pagination,
   filters,
 }: GetAllEntitiesArguments) => {
+  console.log('Getting all available drivers..');
+
   const dataQuery = supabase.from('users').select('*', { count: 'exact' });
 
   if (filters) {
@@ -218,7 +255,12 @@ export const getAllAvailableUsers = async ({
     status: 404,
   }) as UserModel[];
 
+  console.log('All drivers data retrieved successfully..');
+
   const filteredUsers = handledResults.filter(users => users.deviceId === null);
+
+  console.log('Filtered available drivers successfully..');
+
   return {
     data: filteredUsers,
     count: filteredUsers.length,
@@ -229,6 +271,8 @@ export const getAllUnTeamedUsers = async ({
   pagination,
   filters,
 }: GetAllEntitiesArguments) => {
+  console.log('Getting all unteamed drivers..');
+
   const dataQuery = supabase.from('users').select('*', { count: 'exact' });
 
   if (filters) {
@@ -248,7 +292,12 @@ export const getAllUnTeamedUsers = async ({
     status: 404,
   }) as UserModel[];
 
+  console.log('All drivers data retrieved successfully..');
+
   const filteredUsers = handledResults.filter(users => users.teamId === null);
+
+  console.log('Filtered available drivers successfully..');
+
   return {
     data: filteredUsers,
     count: filteredUsers.length,
@@ -256,6 +305,8 @@ export const getAllUnTeamedUsers = async ({
 };
 
 export const deleteUserFromTeam = async (userIds: string[]) => {
+  console.log('Deleting users from team..');
+
   const dataQuery = await supabase
     .from('users')
     .update({ teamId: null }, { count: 'exact' })
@@ -266,6 +317,9 @@ export const deleteUserFromTeam = async (userIds: string[]) => {
     query: dataQuery,
     status: 404,
   });
+
+  console.log('Deleted users from team successfully..');
+
   return {
     count: dataQuery?.count ?? 0,
   };

@@ -25,6 +25,8 @@ export const getAllClients = async ({
   pagination,
   filters,
 }: GetAllEntitiesArguments) => {
+  console.log('Getting all clients..');
+
   const dataQuery = supabase
     .from('clientsAndPromotionsView')
     .select('*', { count: 'exact' });
@@ -45,6 +47,8 @@ export const getAllClients = async ({
     status: 404,
   }) as ClientModel[];
 
+  console.log('Clients data retrieved successfully..');
+
   return {
     data: handledResults,
     count: modifiedQuery.count,
@@ -52,6 +56,8 @@ export const getAllClients = async ({
 };
 
 export const getClientById = async (clientId: string) => {
+  console.log('Getting client by id..');
+
   const dataQuery = await supabase
     .from('clients')
     .select('*')
@@ -63,10 +69,14 @@ export const getClientById = async (clientId: string) => {
     status: 404,
   });
 
+  console.log('Client data retrieved successfully..');
+
   return handledResults;
 };
 
 export const addNewClient = async (input: ClientInput) => {
+  console.log('Adding new client..');
+
   const dataQuery = await supabase
     .from('clients')
     .upsert(input)
@@ -78,10 +88,13 @@ export const addNewClient = async (input: ClientInput) => {
     status: 406,
   });
 
+  console.log('Client added successfully..');
   return handledResults;
 };
 
 export const editClient = async (input: EditClientInput) => {
+  console.log('Updating client..');
+
   const { id, ...editInputs } = input;
   const dataQuery = await supabase
     .from('clients')
@@ -95,15 +108,21 @@ export const editClient = async (input: EditClientInput) => {
     status: 404,
   });
 
+  console.log('Client updated successfully..');
+
   return handledResults;
 };
 
 export const deleteClient = async (clientIds: Array<string>) => {
+  console.log('Deleting clients..');
+
   const queryData = await supabase
     .from('clients')
     .delete({ count: 'exact' })
     .in('id', clientIds);
 
   queryResultHandler({ query: queryData });
+
+  console.log('Clients deleted successfully..');
   return queryData.count;
 };
