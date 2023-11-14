@@ -1,6 +1,6 @@
-import { SendEmailCommand } from '@aws-sdk/client-ses';
-import logger from '../logger';
-import { ses } from './aws';
+import nodemailer from 'nodemailer';
+import Mailjet from 'node-mailjet';
+import SMTPTransport from 'nodemailer/lib/smtp-transport';
 // import sendEmail from './emailService';
 
 type ResetCodeEmailVars = {
@@ -18,35 +18,17 @@ type MailArgs = {
   emailVars?: ResetCodeEmailVars | NewContractEmailVars;
 };
 
-export const sendEmail = async (emailArgs: {}) => {
+const mailjetTransport = Mailjet.apiConnect(
+  process.env.MAILJET_APIKEY_PUBLIC as unknown as string,
+  process.env.MAILJET_APIKEY_PRIVATE as unknown as string,
+);
+
+export const sendEmail = async (mailOptions: Record<string, unknown>) => {
+  console.log('Sending email..');
   try {
-    const params = {
-      Destination: {
-        ToAddresses: ['prisacariuvictor@gmail.com'],
-      },
-      Message: {
-        Body: {
-          Html: {
-            Charset: 'UTF-8',
-            Data: 'This message body contains HTML formatting. It can, for example, contain links like this one: <a class="ulink" href="http://docs.aws.amazon.com/ses/latest/DeveloperGuide" target="_blank">Amazon SES Developer Guide</a>.',
-          },
-          Text: {
-            Charset: 'UTF-8',
-            Data: 'This is the message body in text format.',
-          },
-        },
-        Subject: {
-          Charset: 'UTF-8',
-          Data: 'Test email',
-        },
-      },
-      Source: 'noreply@hello.gorilla-advertising.ro',
-    };
-    const sendEmailCommand = new SendEmailCommand(params);
-    await ses.send(sendEmailCommand);
-  } catch (error) {
-    logger.error(error);
-    return 400;
+    await mailjetTransport.post('send').request(mailOptions);
+  } catch (err) {
+    console.log(err, 'Email failed..');
   }
 };
 
@@ -59,7 +41,7 @@ export const sendEmail = async (emailArgs: {}) => {
 //     resetCodeEmailArgs,
 //   );
 
-// export const sendNewContractEmail = async (
+// export const sendNewDriverEmail = async (
 //   sendNewContractEmailArgs: MailArgs,
 // ) =>
 //   sendMailTemplate(
@@ -68,4 +50,13 @@ export const sendEmail = async (emailArgs: {}) => {
 //     sendNewContractEmailArgs,
 //   );
 
-export const sendCreatedUserEmail = async (emailArgs: MailArgs) => {};
+export const sendCreatedUserEmail = async (emailArgs: MailArgs) => {
+  const mailOptions = {
+    FromEmail: process.env.MAILJET_SENDER,
+    Subject: 'Welcome to our fleet!',
+    'Text-part': `Stimate şofer, bine aţi venit în flota Gorilla Advertising! Codul dumneavoastra de autentificare este: ${emailArgs.emailVars?.token}`,
+    'Html-part': `<h3>Stimate şofer, bine ati venit in flota Gorilla Advertising! <br> Codul dumneavoastra de autentificare este: ${emailArgs.emailVars?.token}`,
+    To: emailArgs?.recipient,
+  };
+  await sendEmail(mailOptions);
+};

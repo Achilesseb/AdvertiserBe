@@ -13,6 +13,7 @@ import {
   getUserById,
 } from '../../models/usersModel';
 import { sendCreatedUserEmail, sendEmail } from '../../utils/emailHandlers';
+import { GraphQLError } from 'graphql';
 
 export type UserInput = {
   name: string;
@@ -44,22 +45,28 @@ export const usersResolver = {
       _: unknown,
       { input }: { input: GetAllEntitiesArguments },
     ) => getAllUnTeamedUsers(input ?? {}),
-    getUserById: async (_: undefined, { userId }: { userId: string }) => {
-      // await sendEmail({});
-      // console.log('sent email');
-      return await getUserById(userId);
-    },
+    getUserById: async (_: undefined, { userId }: { userId: string }) =>
+      await getUserById(userId),
+
     getUserByEmail: (_: undefined, { userEmail }: { userEmail: string }) =>
       getUserByEmail(userEmail),
   },
   Mutation: {
     addNewUser: async (_: undefined, { input }: { input: UserInput }) => {
       const userData = await addNewUser(input);
-
-      await sendCreatedUserEmail({
-        recipient: userData.email,
-        emailVars: { token: userData.registrationCode },
-      });
+      try {
+        console.log('Sending email...');
+        await sendCreatedUserEmail({
+          recipient: userData.email,
+          emailVars: { token: userData.registrationCode },
+        });
+      } catch (err) {
+        console.log('Failed sending email...');
+        deleteUser([userData.id]);
+        throw new GraphQLError(
+          'Failed sending email to specified address. Pleasy try again later..',
+        );
+      }
 
       return { ...userData };
     },
