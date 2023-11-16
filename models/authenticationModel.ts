@@ -33,7 +33,7 @@ export const confirmUserRegistration = async ({
       email: email,
       password: password,
     });
-
+    console.log(error);
     if (error) throw error;
 
     console.log('Supabase signUp successfull..');
