@@ -36,6 +36,7 @@
     "graphql-subscriptions": "^2.0.0",
     "graphql-ws": "^5.14.0",
     "lodash": "^4.17.21",
+    "mailtrap": "^3.2.0",
     "node-mailjet": "^6.0.4",
     "nodemailer": "^6.9.7",
     "pino-pretty": "^10.2.0",
