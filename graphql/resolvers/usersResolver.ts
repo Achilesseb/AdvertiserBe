@@ -1,7 +1,5 @@
 import { GetAllEntitiesArguments } from './../utils/modifiers';
-import { getRole } from '../../models/rolesModel';
 import {
-  Roles,
   addNewUser,
   deleteUser,
   deleteUserFromTeam,
@@ -12,7 +10,7 @@ import {
   getUserByEmail,
   getUserById,
 } from '../../models/usersModel';
-import { sendCreatedUserEmail, sendEmail } from '../../utils/emailHandlers';
+import { sendCreatedUserEmail } from '../../utils/emailHandlers';
 import { GraphQLError } from 'graphql';
 
 export type UserInput = {
@@ -24,6 +22,7 @@ export type UserInput = {
   address?: string;
   carDetails?: string;
   registrationPlate?: string;
+  registrationCode?: string | null;
   tabletId?: string;
   tablets?: number;
   driverId: string;

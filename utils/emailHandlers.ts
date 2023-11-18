@@ -1,7 +1,5 @@
 import nodemailer from 'nodemailer';
-import Mailjet from 'node-mailjet';
-import SMTPTransport from 'nodemailer/lib/smtp-transport';
-// import sendEmail from './emailService';
+import { MailtrapMailOptions } from 'mailtrap/dist/types/transport';
 
 type ResetCodeEmailVars = {
   token: string | number;
@@ -18,19 +16,19 @@ type MailArgs = {
   emailVars?: ResetCodeEmailVars | NewContractEmailVars;
 };
 
-const mailjetTransport = Mailjet.apiConnect(
-  process.env.MAILJET_APIKEY_PUBLIC as unknown as string,
-  process.env.MAILJET_APIKEY_PRIVATE as unknown as string,
-);
+// const mailjetTransport = Mailjet.apiConnect(
+//   process.env.MAILJET_APIKEY_PUBLIC as unknown as string,
+//   process.env.MAILJET_APIKEY_PRIVATE as unknown as string,
+// );
 
-export const sendEmail = async (mailOptions: Record<string, unknown>) => {
-  console.log('Sending email..');
-  try {
-    await mailjetTransport.post('send').request(mailOptions);
-  } catch (err) {
-    console.log(err, 'Email failed..');
-  }
-};
+// export const sendEmail = async (mailOptions: Record<string, unknown>) => {
+//   console.log('Sending email..');
+//   try {
+//     await mailjetTransport.post('send').request(mailOptions);
+//   } catch (err) {
+//     console.log(err, 'Email failed..');
+//   }
+// };
 
 // export const sendPasswordResetCodeEmail = async (
 //   resetCodeEmailArgs: MailArgs,
@@ -49,14 +47,38 @@ export const sendEmail = async (mailOptions: Record<string, unknown>) => {
 //     'newContract.body',
 //     sendNewContractEmailArgs,
 //   );
+// const mailOptions = {
+//   from: 'noreply@gorilla-advertising.ro',
+//   to: 'prisacariuvictor@gmail.com',
+//   subject: 'Test Email',
+//   html: 'Hello papa',
+// };
 
+const transporter = nodemailer.createTransport({
+  host: process.env.MAILTRAP_HOST,
+  port: 587,
+  auth: {
+    user: process.env.MAILTRAP_USER,
+    pass: process.env.MAILTRAP_PASSWORD,
+  },
+});
+
+export const sendEmail = (mailOptions: MailtrapMailOptions) => {
+  transporter.sendMail(mailOptions, (error, info) => {
+    if (error) {
+      console.log(error);
+    } else {
+      console.log('Email sent: ' + info.response);
+    }
+  });
+};
 export const sendCreatedUserEmail = async (emailArgs: MailArgs) => {
   const mailOptions = {
-    FromEmail: process.env.MAILJET_SENDER,
-    Subject: 'Welcome to our fleet!',
-    'Text-part': `Stimate şofer, bine aţi venit în flota Gorilla Advertising! Codul dumneavoastra de autentificare este: ${emailArgs.emailVars?.token}`,
-    'Html-part': `<h3>Stimate şofer, bine ati venit in flota Gorilla Advertising! <br> Codul dumneavoastra de autentificare este: ${emailArgs.emailVars?.token}`,
-    To: emailArgs?.recipient,
+    from: process.env.MAILJET_SENDER,
+    subject: 'Bine ai venit!',
+    text: `Stimate şofer, bine aţi venit în flota Gorilla Advertising! Codul dumneavoastra de autentificare este: ${emailArgs.emailVars?.token}`,
+    html: `<h3>Stimate şofer, bine ati venit in flota Gorilla Advertising! <br> Codul dumneavoastra de autentificare este: ${emailArgs.emailVars?.token}`,
+    to: emailArgs?.recipient,
   };
-  await sendEmail(mailOptions);
+  sendEmail(mailOptions as unknown as MailtrapMailOptions);
 };

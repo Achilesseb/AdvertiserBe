@@ -10,6 +10,7 @@ import {
 import { DeviceModel } from './devicesModel';
 import { TeamModel } from './teamsModel';
 import { generateRegistrationCode } from '../utils/codeGenerators';
+import { sendCreatedUserEmail } from '../utils/emailHandlers';
 
 export enum Roles {
   driver = 'driver',

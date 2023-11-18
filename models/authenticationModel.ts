@@ -1,10 +1,11 @@
-import { UserModel } from './usersModel';
+import { UserModel, editUser } from './usersModel';
 import {
   generateQueryResultError,
   queryResultHandler,
 } from '../graphql/utils/errorHandlers';
 import supabase from '../supabase';
 import { UserRegistrationInputTypes } from '../graphql/resolvers/authenticationResolver';
+import { EditUserInput } from '../graphql/resolvers/usersResolver';
 
 export const confirmUserRegistration = async ({
   email,
@@ -35,6 +36,11 @@ export const confirmUserRegistration = async ({
     });
     console.log(error);
     if (error) throw error;
+
+    editUser({
+      userId: userData.id,
+      registrationCode: null,
+    } as EditUserInput);
 
     console.log('Supabase signUp successfull..');
 
