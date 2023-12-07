@@ -16,9 +16,10 @@ dayjs.extend(utc);
 dayjs.extend(tz);
 const devicesMappingFunctions = (result: DeviceModelReturnType) => {
   const { users, ...deviceDataResult } = result;
+  console.log(deviceDataResult, users);
   return {
     ...deviceDataResult,
-    driver: users[0],
+    ...(users && { driver: users }),
   };
 };
 
@@ -38,12 +39,14 @@ export const getAllDevices = async ({
   pagination,
   filters,
 }: GetAllEntitiesArguments) => {
+  console.log(filters, pagination);
   const dataQuery = supabase
     .from('devices')
     .select<string, DeviceModelReturnType>('*, users(*)', {
       count: 'exact',
     });
-  if (filters) {
+  console.log(!_.isEmpty(filters));
+  if (!_.isEmpty(filters)) {
     const filtersObject = Object.entries(filters);
     filtersObject.forEach(filter =>
       dataQuery.ilike(filter[0], `%${filter[1]}%`),
@@ -55,7 +58,7 @@ export const getAllDevices = async ({
       pagination,
     },
   );
-
+  console.log(modifiedQuery);
   const handledResults = queryResultHandler({
     query: modifiedQuery,
     status: 404,

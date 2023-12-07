@@ -177,7 +177,19 @@ export const addNewUser = async (input: UserInput) => {
 };
 
 export const editUser = async (input: EditUserInput) => {
-  console.log('Updating user..');
+  console.log('Updating user..', input);
+
+  if (input?.deviceId) {
+    console.log('Unassigning device from possible users..');
+    try {
+      await supabase
+        .from('users')
+        .update({ deviceId: null })
+        .eq('deviceId', input.deviceId);
+    } catch (err) {
+      console.log('Error unassigning device from users.');
+    }
+  }
 
   const { userId: id, ...editInputs } = input;
   const dataQuery = await supabase

@@ -23,7 +23,7 @@ export type UserInput = {
   carDetails?: string;
   registrationPlate?: string;
   registrationCode?: string | null;
-  tabletId?: string;
+  deviceId?: string;
   tablets?: number;
   driverId: string;
 };
