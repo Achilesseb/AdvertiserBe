@@ -43,7 +43,7 @@ export const getAllDevices = async ({
     .select<string, DeviceModelReturnType>('*, users(*)', {
       count: 'exact',
     });
-  if (filters) {
+  if (!_.isEmpty(filters)) {
     const filtersObject = Object.entries(filters);
     filtersObject.forEach(filter =>
       dataQuery.ilike(filter[0], `%${filter[1]}%`),
