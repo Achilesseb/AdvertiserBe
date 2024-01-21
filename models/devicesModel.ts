@@ -18,7 +18,7 @@ const devicesMappingFunctions = (result: DeviceModelReturnType) => {
   const { users, ...deviceDataResult } = result;
   return {
     ...deviceDataResult,
-    driver: users?.[0] ?? {},
+    driver: users?.[0] ?? users ?? {},
   };
 };
 

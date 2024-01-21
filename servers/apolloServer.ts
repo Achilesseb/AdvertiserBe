@@ -65,7 +65,6 @@ export const createExpressContext = async ({
   req: express.Request;
   res: express.Response;
 }) => {
-  console.log(req.body.operationName);
   if (req?.body?.operationName === 'ConfirmUserRegistration') {
     return {};
   }
