@@ -51,7 +51,10 @@ export const promotionsResolver = {
     ) => deletePromotion(promotionIds),
     deletePromotionsFromTeam: (
       _: undefined,
-      { promotionIds }: { promotionIds: Array<string> },
-    ) => deletePromoFromTeam(promotionIds),
+      { input }: { input: { promotionIds: Array<string>; teamId: string } },
+    ) => {
+      const { promotionIds, teamId } = input;
+      deletePromoFromTeam(promotionIds, teamId);
+    },
   },
 };

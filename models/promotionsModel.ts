@@ -189,17 +189,22 @@ export const addNewPromotionToTeam = async (input: TeamsPromotionsInput) => {
   });
 };
 
-export const deletePromoFromTeam = async (promotionsIds: string[]) => {
+export const deletePromoFromTeam = async (
+  promotionsIds: string[],
+  teamId: string,
+) => {
   const dataQuery = await supabase
     .from('teamPromotions')
     .delete()
     .in('promotionId', promotionsIds)
+    .eq('teamId', teamId)
     .select('*');
 
   queryResultHandler({
     query: dataQuery,
     status: 404,
   });
+
   return {
     count: dataQuery?.count ?? 0,
   };
