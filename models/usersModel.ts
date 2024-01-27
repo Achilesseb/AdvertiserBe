@@ -326,6 +326,21 @@ export const deleteUserFromTeam = async (userIds: string[]) => {
   };
 };
 
+export const unassignPreviousUser = async (deviceId: string) => {
+  console.log('Unaasigning previous user from device..');
+
+  await supabase
+    .from('users')
+    .update({
+      deviceId: null,
+    })
+    .eq('deviceId', deviceId);
+
+  console.log('User unassigned successfully..');
+
+  return true;
+};
+
 export type UserDBRawTypes = {
   id: string;
   name: string;

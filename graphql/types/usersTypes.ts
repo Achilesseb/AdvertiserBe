@@ -100,6 +100,7 @@ export const usersTypes = `#graphql
         editUser(input: EditUserInput!): UserAndDeviceResultTypes
         deleteUserFromTeam(usersIds: [String]!): DeleteUsersFromTeamsResponse
         deleteUser(usersIds: [String]!): Int
+        unassignPreviousUser(deviceId: String): Boolean
     }
 
 

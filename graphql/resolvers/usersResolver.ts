@@ -9,6 +9,7 @@ import {
   getAllUsers,
   getUserByEmail,
   getUserById,
+  unassignPreviousUser,
 } from '../../models/usersModel';
 import { sendCreatedUserEmail } from '../../utils/emailHandlers';
 import { GraphQLError } from 'graphql';
@@ -78,5 +79,7 @@ export const usersResolver = {
     ) => deleteUserFromTeam(usersIds),
     deleteUser: (_: undefined, { usersIds }: { usersIds: Array<string> }) =>
       deleteUser(usersIds),
+    unassignPreviousUser: (_: undefined, { deviceId }: { deviceId: string }) =>
+      unassignPreviousUser(deviceId),
   },
 };
