@@ -106,6 +106,99 @@ export const getPromotionsReports = async ({
   };
 };
 
+export const getDriversReports = async ({
+  pagination,
+  filters,
+}: GetAllEntitiesArguments) => {
+  const inUseConstant = await getInUseConstant();
+
+  const { startDate, endDate, ...restFilters } = filters ?? '';
+  if (!startDate && !endDate) return;
+  const dataQuery = supabase.rpc(
+    'GetDriversOverallStatistics',
+    {
+      startDate: dayjs.utc(startDate as string).format('MM-DD-YYYY'),
+      endDate: dayjs.utc(endDate as string).format('MM-DD-YYYY'),
+      constant: inUseConstant.constant,
+      averageTrip: AVERAGE_TRIP,
+    },
+    { count: 'exact' },
+  );
+
+  if (restFilters) {
+    const filtersObject = Object.entries(restFilters);
+    filtersObject.forEach(filter =>
+      dataQuery.ilike(filter[0], `%${filter[1]}%`),
+    );
+  }
+
+  const modifiedQuery = await addQueryModifiers<DriversReportsModel[]>(
+    dataQuery,
+    {
+      pagination,
+    },
+  );
+
+  const handledResults = queryResultHandler({
+    query: modifiedQuery,
+    status: 404,
+  }) as DriversReportsModel[];
+
+  return {
+    data: handledResults,
+    count: modifiedQuery.count,
+  };
+};
+
+export const getUniqueDriverReports = async ({
+  pagination,
+  filters,
+}: GetAllEntitiesArguments) => {
+  const inUseConstant = await getInUseConstant();
+
+  const { startDate, endDate, driverId, ...restFilters } = filters ?? '';
+  if (!startDate && !endDate) return;
+  const dataQuery = supabase.rpc(
+    'GetUniqueDriverStatistics',
+    {
+      startDate: dayjs.utc(startDate as string).format('MM-DD-YYYY'),
+      endDate: dayjs.utc(endDate as string).format('MM-DD-YYYY'),
+      constant: inUseConstant.constant,
+      driverId,
+      averageTrip: AVERAGE_TRIP,
+    },
+    { count: 'exact' },
+  );
+
+  if (restFilters) {
+    const filtersObject = Object.entries(restFilters);
+    filtersObject.forEach(filter =>
+      dataQuery.ilike(filter[0], `%${filter[1]}%`),
+    );
+  }
+
+  const modifiedQuery = await addQueryModifiers<UniqueDriverReportsModel[]>(
+    dataQuery,
+    {
+      pagination,
+      sort: {
+        field: 'day',
+        direction: 'asc',
+      },
+    },
+  );
+
+  const handledResults = queryResultHandler({
+    query: modifiedQuery,
+    status: 404,
+  }) as UniqueDriverReportsModel[];
+
+  return {
+    data: handledResults,
+    count: modifiedQuery.count,
+  };
+};
+
 export type ClientReportsModel = {
   clientId: string;
   name: string;
@@ -120,4 +213,17 @@ export type PromotionsReportsModel = {
   clientId: string;
   title: number;
   trips: number;
+};
+
+export type DriversReportsModel = {
+  id: string;
+  totalDistance: number;
+  trips: number;
+  driverName: string;
+  car?: string;
+  fleet?: string;
+};
+
+export type UniqueDriverReportsModel = DriversReportsModel & {
+  day: string;
 };
