@@ -33,7 +33,7 @@ const corsDomains = process.env.CORS_DOMAINS?.split(',');
     }),
   );
 
-  app.use('/', (req, res) => {
+  app.use('/', (_req, res) => {
     res.send('Hello World!');
   });
   const port = process.env.PORT;
