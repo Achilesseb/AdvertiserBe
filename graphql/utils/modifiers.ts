@@ -1,22 +1,8 @@
 import { PostgrestFilterBuilder } from '@supabase/postgrest-js';
 import { GenericSchema } from '@supabase/supabase-js/dist/module/lib/types';
 
-export type PaginationArguments = {
-  page?: number;
-  entitiesPerPage?: number;
-};
-
-export type GetAllEntitiesArguments = {
-  pagination: PaginationArguments;
-  filters: Record<string, unknown>;
-};
-
 const addPaginationModifiers = <ResultModel>(
-  baseQuery: PostgrestFilterBuilder<
-    GenericSchema,
-    Record<string, unknown>,
-    ResultModel
-  >,
+  baseQuery: PostgrestFilterBuilder<GenericSchema, any, ResultModel>,
   pagination: PaginationArguments,
 ) => {
   const entitiesPerPage = pagination?.entitiesPerPage ?? 10;
@@ -27,22 +13,52 @@ const addPaginationModifiers = <ResultModel>(
   return baseQuery.range(startingIndex, endingIndex);
 };
 
+const addSortingModifiers = <ResultModel>(
+  baseQuery: PostgrestFilterBuilder<GenericSchema, any, ResultModel>,
+  sort: SortingArguments,
+) => {
+  const sortDirection = sort?.direction === 'asc' || false;
+  return baseQuery.order(sort.field, { ascending: !sortDirection });
+};
+
 export const addQueryModifiers = async <ResultModel>(
-  baseQuery: PostgrestFilterBuilder<
-    GenericSchema,
-    Record<string, unknown>,
-    ResultModel
-  >,
+  baseQuery: PostgrestFilterBuilder<GenericSchema, any, ResultModel>,
   modifiers: {
     pagination?: PaginationArguments;
+    sort?: SortingArguments;
   },
 ) => {
-  const modifiersMapper: Record<string, typeof addPaginationModifiers> = {
+  const modifiersMapper: ModifierMapperTypes = {
     pagination: addPaginationModifiers,
+    sort: addSortingModifiers,
   };
   return Object.entries(modifiers).reduce(
     (query, [modifier, modifierArgs]) =>
-      modifiersMapper?.[modifier]<ResultModel>(query, modifierArgs),
+      modifiersMapper?.[modifier as keyof ModifierMapperTypes]<ResultModel>(
+        query,
+        modifierArgs as any,
+      ),
     baseQuery,
   );
+};
+
+type ModifierMapperTypes = {
+  pagination: typeof addPaginationModifiers;
+  sort: typeof addSortingModifiers;
+};
+
+export type PaginationArguments = {
+  page?: number;
+  entitiesPerPage?: number;
+};
+
+export type SortingArguments = {
+  field: string;
+  direction: string;
+};
+
+export type GetAllEntitiesArguments = {
+  pagination: PaginationArguments;
+  sort: SortingArguments;
+  filters: Record<string, unknown>;
 };
